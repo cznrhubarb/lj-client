@@ -27,7 +27,8 @@ let gobs = {};
 let lastPointer, imwalkinhere, currentDir;
 let channels = {};
 let devSocket;
-let waitingForMoveResponse = false;
+let waitingForMoveResponse = true;
+let animIds = {};
 
 function create () {
   this.makeGobbo = makeGobbo.bind(this);
@@ -36,6 +37,7 @@ function create () {
   const animFrameCounts = [4, 8, 8, 6, 4, 2, 6];
 
   let frameCtr = 0; 
+  let idCtr = 0;
   directions.forEach((dir) => {
     animNames.forEach((name, idx) => {
       this.anims.create({
@@ -45,6 +47,7 @@ function create () {
         repeat: idx < animNames.length/2 ? -1 : 0,
         yoyo: idx == 3 || idx == 0
       });
+      animIds[dir + "_" + name] = idCtr++;
       frameCtr += animFrameCounts[idx];
     });
   });
@@ -54,26 +57,19 @@ function create () {
   currentDir = 'down';
   imwalkinhere = false;
   this.input.on('pointerdown', function(pointer) {
-    currentDir = determineDirection(gobs[gobName], pointer);
-    gobs[gobName].anims.play(currentDir + '_walk');
     imwalkinhere = true;
     lastPointer = pointer;
   }, this);
   this.input.on('pointermove', function(pointer) {
     if (imwalkinhere) {
-      let newDir = determineDirection(gobs[gobName], pointer);
-      if (newDir != currentDir) {
-        currentDir = newDir;
-        gobs[gobName].anims.play(currentDir + '_walk');
-      }
       lastPointer = pointer;
     }
   }, this)
   this.input.on('pointerup', function(pointer) {
-    gobs[gobName].anims.play(currentDir + '_idle');
     imwalkinhere = false;
   }, this);
 
+  /*
   for (let y = 0; y < game.renderer.height / 32 + 1; y++) {
     for (let x = 0; x < game.renderer.width / 32 + 1; x++) {
       let offset = y % 2 ? 16 : 0;
@@ -83,11 +79,11 @@ function create () {
       tree.depth = tree.y;
     }
   }
+  */
 
   devSocket = new Socket("ws://localhost:4000/socket", {params: {username: gobName}});
   devSocket.connect();
 
-  console.log("uhhh");
   let channel = devSocket.channel("object:stump", {});
   channel.on("create_stump_res", msg => console.log("Got message", msg));
   channel.join()
@@ -104,12 +100,10 @@ function create () {
       moveThisGob = this.makeGobbo(msg.username);
     }
 
+    updateGobbo(moveThisGob, msg);
     if (msg.username == gobName) {
       waitingForMoveResponse = false;
     }
-    moveThisGob.x = msg.x;
-    moveThisGob.y = msg.y;
-    moveThisGob.depth = moveThisGob.y;
   });
   channels.position.join()
     .receive("ok", res => { console.log("Joined pos channel successfully", res); })
@@ -128,11 +122,36 @@ function makeGobbo(name) {
   return gob;
 }
 
+function updateGobbo(gobbo, newPos) {
+  if (gobbo.x == Number.MAX_VALUE) {
+    gobbo.anims.play('down_die', 5);
+    gobbo.anims.forward = false;
+    gobbo.lastDirection = 'down';
+  } else if (gobbo.x == newPos.x) {
+    if (gobbo.anims.currentAnim.key != "down_die" || !gobbo.anims.isPlaying) {
+      gobbo.anims.play(gobbo.lastDirection + '_idle', true);
+    }
+  } else {
+    let dir = determineDirection(gobbo, newPos);
+    gobbo.anims.play(dir + '_walk', true);
+    gobbo.lastDirection = dir;
+  }
+  
+  gobbo.x = newPos.x;
+  gobbo.y = newPos.y;
+  gobbo.depth = gobbo.y;
+}
+
 function update() {
-  if (imwalkinhere && !waitingForMoveResponse) {
-    waitingForMoveResponse = true;
+  if (!waitingForMoveResponse) {
     let gob = gobs[gobName];
-    channels.position.push("req_position", { current: {x: gob.x, y: gob.y}, desired: {x: lastPointer.x, y: lastPointer.y} });
+    if (imwalkinhere) {
+      waitingForMoveResponse = true;
+      channels.position.push("req_position", { current: {x: gob.x, y: gob.y}, desired: {x: lastPointer.x, y: lastPointer.y} });
+    } else {
+      let payload = { current: {x: gob.x, y: gob.y} };
+      channels.position.push("req_position", payload);
+    }
   }
 }
 
@@ -170,7 +189,9 @@ function determineDirection(origin, pointer) {
 // Slow down while chopping (or pause for one iteration of chop menu)
 // 'Scroll' camera
 
+// Only send network traffic to nearby duders
 
+// ======================================= DESIGN SHIT =========================================
 // Skill tree is actual tree
 // Skills allow player to cut faster, build faster, build with less materials, buildings live longer after log off
 // Player's accomplishments in a given session affect how much xp gained per hour while logged off (or how many hours xp is gained for)
