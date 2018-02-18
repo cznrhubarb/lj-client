@@ -81,7 +81,7 @@ function create () {
   }
   */
 
-  devSocket = new Socket("ws://localhost:4000/socket", {params: {username: gobName}});
+  devSocket = new Socket("ws://lj-sawver.herokuapp.com/socket", {params: {username: gobName}});
   devSocket.connect();
 
   let channel = devSocket.channel("object:stump", {});
