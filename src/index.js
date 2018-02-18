@@ -27,6 +27,7 @@ let gobs = {};
 let lastPointer, imwalkinhere, currentDir;
 let channels = {};
 let devSocket;
+let waitingForMoveResponse = false;
 
 function create () {
   this.makeGobbo = makeGobbo.bind(this);
@@ -86,6 +87,7 @@ function create () {
   devSocket = new Socket("ws://localhost:4000/socket", {params: {username: gobName}});
   devSocket.connect();
 
+  console.log("uhhh");
   let channel = devSocket.channel("object:stump", {});
   channel.on("create_stump_res", msg => console.log("Got message", msg));
   channel.join()
@@ -96,16 +98,15 @@ function create () {
 
   channels.position = devSocket.channel("player:position", {});
   channels.position.on("new_position", msg => {
-    console.log("new pos message received");
-    console.log(msg);
     let moveThisGob = gobs[msg.username];
     if (!moveThisGob) {
       // Must create the new gob
       moveThisGob = this.makeGobbo(msg.username);
-      console.log("Hey a new gobbo joined");
-      //return;
     }
 
+    if (msg.username == gobName) {
+      waitingForMoveResponse = false;
+    }
     moveThisGob.x = msg.x;
     moveThisGob.y = msg.y;
     moveThisGob.depth = moveThisGob.y;
@@ -128,12 +129,10 @@ function makeGobbo(name) {
 }
 
 function update() {
-  if (imwalkinhere) {
+  if (imwalkinhere && !waitingForMoveResponse) {
+    waitingForMoveResponse = true;
     let gob = gobs[gobName];
     channels.position.push("req_position", { current: {x: gob.x, y: gob.y}, desired: {x: lastPointer.x, y: lastPointer.y} });
-    //gob.x += deltaX * speed;
-    //gob.y += deltaY * speed;
-    //gob.depth = gob.y;
   }
 }
 
@@ -158,16 +157,18 @@ function determineDirection(origin, pointer) {
   }
 }
 
+// Animations for other players
+// Request positions from existing players on wake up as well as sending own
+// Remove gobbo on disconnect
+// Low priority: Wake up anim
+// Low priority: Reverse wake up anim
+
+// Track trees
+// Replace tree with stump
+
 // Show chopping anim
 // Slow down while chopping (or pause for one iteration of chop menu)
-// Replace trees with stumps
 // 'Scroll' camera
-
-// Post Elixir server
-// Ping server for updates
-// Show position based on server response
-// Connect clients with other clients via server
-// Show all the gobbos
 
 
 // Skill tree is actual tree
