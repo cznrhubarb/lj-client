@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import {Socket} from 'phoenix';
+import World from './world';
 
 import gobbo from './img/goblin_lumberjack_red.png';
 import tree from './img/tree.png';
@@ -15,6 +16,9 @@ let game = new Phaser.Game({
         update: update
     }
 });
+global.game = game;
+
+let world;
 
 function preload() {
   this.load.image('tree', tree);
@@ -28,7 +32,7 @@ let lastPointer, imwalkinhere, currentDir;
 let channels = {};
 let devSocket;
 let waitingForMoveResponse = true;
-let animIds = {};
+let lastCamUpdate;
 
 function create () {
   this.makeGobbo = makeGobbo.bind(this);
@@ -47,52 +51,53 @@ function create () {
         repeat: idx < animNames.length/2 ? -1 : 0,
         yoyo: idx == 3 || idx == 0
       });
-      animIds[dir + "_" + name] = idCtr++;
       frameCtr += animFrameCounts[idx];
     });
   });
 
-  this.makeGobbo(gobName);
+  let ourGob = this.makeGobbo(gobName);
+  this.cameras.main.setBackgroundColor('#190D07');
+  this.cameras.main.startFollow(ourGob);
 
   currentDir = 'down';
   imwalkinhere = false;
   this.input.on('pointerdown', function(pointer) {
     imwalkinhere = true;
-    lastPointer = pointer;
+    lastPointer = {
+      x: pointer.x + this.cameras.main.scrollX,
+      y: pointer.y + this.cameras.main.scrollY,
+    };
   }, this);
   this.input.on('pointermove', function(pointer) {
     if (imwalkinhere) {
-      lastPointer = pointer;
+      lastPointer = {
+        x: pointer.x + this.cameras.main.scrollX,
+        y: pointer.y + this.cameras.main.scrollY,
+      };
     }
   }, this)
   this.input.on('pointerup', function(pointer) {
     imwalkinhere = false;
   }, this);
 
-  /*
-  for (let y = 0; y < game.renderer.height / 32 + 1; y++) {
-    for (let x = 0; x < game.renderer.width / 32 + 1; x++) {
-      let offset = y % 2 ? 16 : 0;
-      let gfx = 'tree';
-     // if (Math.random() > 0.75) { gfx = 'stump'; }
-      let tree = this.add.sprite(x * 32 + offset, y * 32, gfx);
-      tree.depth = tree.y;
-    }
-  }
-  */
-
-  devSocket = new Socket("ws://lj-sawver.herokuapp.com/socket", {params: {username: gobName}});
+  devSocket = new Socket("ws://localhost:4000/socket", {params: {username: gobName}});
   devSocket.connect();
 
-  let channel = devSocket.channel("object:stump", {});
-  channel.on("create_stump_res", msg => console.log("Got message", msg));
-  channel.join()
-    .receive("ok", res => { console.log("Joined stump channel successfully", res); })
-    .receive("error", res => { console.log("Unable to join stump channel", res); });
-
-  channel.push("create_stump", { body: "what up stump brother" });
+  world = new World(devSocket);
 
   channels.position = devSocket.channel("player:position", {});
+  channels.position.on("presence_state", state => {
+    console.log('state');
+    console.log(state);
+  });
+  channels.position.on("presence_diff", diff => {
+    Object.keys(diff.leaves).forEach(function(dcName) {
+      // TODO: Play the dead animation, with a callback on compplete to remove this gobbo.
+      //  Unfortunately callbacks are linked to animations, not instances of animations...
+      gobs[dcName].destroy();
+      gobs[dcName] = null;
+    });
+  });
   channels.position.on("new_position", msg => {
     let moveThisGob = gobs[msg.username];
     if (!moveThisGob) {
@@ -102,7 +107,47 @@ function create () {
 
     updateGobbo(moveThisGob, msg);
     if (msg.username == gobName) {
+      console.log("Updating our position");
       waitingForMoveResponse = false;
+      let halfWidth = this.cameras.main.width/2 + 32;
+      let halfHeight = this.cameras.main.height/2 + 64;
+
+      if (!lastCamUpdate) {
+        let topLeft = {x: moveThisGob.x - halfWidth, y: moveThisGob.y - halfHeight};
+        let bottomRight = {x: moveThisGob.x + halfWidth, y: moveThisGob.y + halfHeight};
+        forceWorldUpdateInCameraRect(topLeft, bottomRight);
+
+        lastCamUpdate = {x: moveThisGob.x, y: moveThisGob.y};
+        return;
+      }
+      
+      if (moveThisGob.x > lastCamUpdate.x + 16) {
+        let topLeft = {x: lastCamUpdate.x + halfWidth, y: moveThisGob.y - halfHeight};
+        let bottomRight = {x: moveThisGob.x + halfWidth, y: moveThisGob.y + halfHeight};
+        forceWorldUpdateInCameraRect(topLeft, bottomRight);
+
+        lastCamUpdate.x = moveThisGob.x;
+      } else if (moveThisGob.x < lastCamUpdate.x - 16) {
+        let topLeft = {x: moveThisGob.x - halfWidth, y: moveThisGob.y - halfHeight};
+        let bottomRight = {x: lastCamUpdate.x - halfWidth, y: moveThisGob.y + halfHeight};
+        forceWorldUpdateInCameraRect(topLeft, bottomRight);
+
+        lastCamUpdate.x = moveThisGob.x;
+      }
+
+      if (moveThisGob.y > lastCamUpdate.y + 32) {
+        let topLeft = {x: moveThisGob.x - halfWidth, y: lastCamUpdate.y + halfHeight};
+        let bottomRight = {x: moveThisGob.x + halfWidth, y: moveThisGob.y + halfHeight};
+        forceWorldUpdateInCameraRect(topLeft, bottomRight);
+
+        lastCamUpdate.y = moveThisGob.y;
+      } else if (moveThisGob.y < lastCamUpdate.y - 32) {
+        let topLeft = {x: moveThisGob.x - halfWidth, y: moveThisGob.y - halfHeight};
+        let bottomRight = {x: moveThisGob.x + halfWidth, y: lastCamUpdate.y - halfHeight};
+        forceWorldUpdateInCameraRect(topLeft, bottomRight);
+
+        lastCamUpdate.y = moveThisGob.y;
+      }
     }
   });
   channels.position.join()
@@ -110,6 +155,12 @@ function create () {
     .receive("error", res => { console.log("Unable to join pos channel", res); });
 
   channels.position.push("wake_up", {});
+}
+
+function forceWorldUpdateInCameraRect(topLeft, bottomRight) {
+  let tlCoords = world.getTileCoordsForWorldPos(topLeft);
+  let brCoords = world.getTileCoordsForWorldPos(bottomRight);
+  world.requestTilesInCoordRange(tlCoords, brCoords);
 }
 
 function makeGobbo(name) {
@@ -124,6 +175,7 @@ function makeGobbo(name) {
 
 function updateGobbo(gobbo, newPos) {
   if (gobbo.x == Number.MAX_VALUE) {
+    // TODO: Play this animation in reverse. Not supported yet?
     gobbo.anims.play('down_die', 5);
     gobbo.anims.forward = false;
     gobbo.lastDirection = 'down';
@@ -143,6 +195,7 @@ function updateGobbo(gobbo, newPos) {
 }
 
 function update() {
+  // TODO: This should be throttled. It is firing way too often
   if (!waitingForMoveResponse) {
     let gob = gobs[gobName];
     if (imwalkinhere) {
@@ -176,18 +229,16 @@ function determineDirection(origin, pointer) {
   }
 }
 
-// Animations for other players
-// Request positions from existing players on wake up as well as sending own
-// Remove gobbo on disconnect
+// Lowish priority: Bug - stop moving if you just hold the mouse down. Happens because pointer doesn't update with camera moving
 // Low priority: Wake up anim
 // Low priority: Reverse wake up anim
+// Low priority: Other colors
+// Lowish priority: Start splitting this file up into multiples
 
-// Track trees
 // Replace tree with stump
 
 // Show chopping anim
 // Slow down while chopping (or pause for one iteration of chop menu)
-// 'Scroll' camera
 
 // Only send network traffic to nearby duders
 
