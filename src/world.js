@@ -1,8 +1,11 @@
 export default class World {
-  constructor(devSocket) {
+  constructor(devSocket, scene) {
+    this.sceneRef = scene;
     this.tiles = {};
     this.recycleBin = {};
-    this.openField = {};
+    this.renderedObjects = [];
+
+    this.lastCamCenter = null;
 
     this.objectChannel = devSocket.channel("object:all", {});
     this.objectChannel.on("get_obj_response", msg => {
@@ -37,6 +40,12 @@ export default class World {
 
     // TODO: Don't think this is the correct way to 'turn off' sprites
     if (tile.contents) {
+      //tile.contents.setTexture(type);
+      //return;
+
+      //tile.contents.destroy();
+      //tile.contents = null;
+
       this.recycleBin[tile.contents.type] = tile.contents;
       tile.contents.renderFlags = 0;
       tile.contents.active = false;
@@ -50,17 +59,14 @@ export default class World {
         obj.renderFlags = 15;
         obj.active = true;
       } else {
-        obj = global.game.scene.scenes[0].add.sprite(worldPos.x, worldPos.y, type);
+        obj = this.sceneRef.add.sprite(worldPos.x, worldPos.y, type);
         obj.depth = obj.y;
         obj.type = type;
       }
 
       tile.contents = obj;
 
-      if (!this.openField[type]) {
-        this.openField[type] = [];
-      }
-      this.openField[type].push(obj);
+      this.renderedObjects.push(obj);
     }
   }
 
@@ -115,11 +121,119 @@ export default class World {
       }
     }
     
-    //console.log(coordList);
     this.objectChannel.push("get_obj_at", { coords: coordList });
   }
 
   isStaggeredRow(pos) {
     return this.getTileYCoordForWorldPos(pos) % 2 == 0;
+  }
+
+  updateCameraView(newCenterWorldPos) {
+    let halfWidth = this.sceneRef.cameras.main.width/2 + 32;
+    let halfHeight = this.sceneRef.cameras.main.height/2 + 64;
+
+    if (!this.lastCamCenter) {
+      // A bunch of special logic for when we first appear.
+      // Wipe out the stuff where we're standing:
+      //world.clearForestAround(moveThisGob, 1);
+
+      // Show everything on screen:
+      let topLeft = {x: newCenterWorldPos.x - halfWidth, y: newCenterWorldPos.y - halfHeight};
+      let bottomRight = {x: newCenterWorldPos.x + halfWidth, y: newCenterWorldPos.y + halfHeight};
+      this.forceWorldUpdateInCameraRect(topLeft, bottomRight);
+
+      this.lastCamCenter = {x: newCenterWorldPos.x, y: newCenterWorldPos.y};
+      return false;
+    }
+    
+    // TODO: Don't love this. Chop should happen when the jack changes tiles,
+    //  which should be checked on any movement, but not idle
+    let shouldChop = false;
+    if (newCenterWorldPos.x > this.lastCamCenter.x + 16) {
+      let topLeft = {x: this.lastCamCenter.x + halfWidth, y: newCenterWorldPos.y - halfHeight};
+      let bottomRight = {x: newCenterWorldPos.x + halfWidth, y: newCenterWorldPos.y + halfHeight};
+      this.forceWorldUpdateInCameraRect(topLeft, bottomRight);
+
+      this.lastCamCenter.x = newCenterWorldPos.x;
+      shouldChop = true;
+    } else if (newCenterWorldPos.x < this.lastCamCenter.x - 16) {
+      let topLeft = {x: newCenterWorldPos.x - halfWidth, y: newCenterWorldPos.y - halfHeight};
+      let bottomRight = {x: this.lastCamCenter.x - halfWidth, y: newCenterWorldPos.y + halfHeight};
+      this.forceWorldUpdateInCameraRect(topLeft, bottomRight);
+
+      this.lastCamCenter.x = newCenterWorldPos.x;
+      shouldChop = true;
+    }
+
+    if (newCenterWorldPos.y > this.lastCamCenter.y + 32) {
+      let topLeft = {x: newCenterWorldPos.x - halfWidth, y: this.lastCamCenter.y + halfHeight};
+      let bottomRight = {x: newCenterWorldPos.x + halfWidth, y: newCenterWorldPos.y + halfHeight};
+      this.forceWorldUpdateInCameraRect(topLeft, bottomRight);
+
+      this.lastCamCenter.y = newCenterWorldPos.y;
+      shouldChop = true;
+    } else if (newCenterWorldPos.y < this.lastCamCenter.y - 32) {
+      let topLeft = {x: newCenterWorldPos.x - halfWidth, y: newCenterWorldPos.y - halfHeight};
+      let bottomRight = {x: newCenterWorldPos.x + halfWidth, y: newCenterWorldPos.y - halfHeight};
+      this.forceWorldUpdateInCameraRect(topLeft, bottomRight);
+
+      this.lastCamCenter.y = newCenterWorldPos.y;
+      shouldChop = true;
+    }
+
+    // If we're gonna chop, let's just cull as well.
+    if (shouldChop) {
+      //this.cull();
+    }
+
+    return shouldChop;
+  }
+
+  forceWorldUpdateInCameraRect(topLeft, bottomRight) {
+    let tlCoords = this.getTileCoordsForWorldPos(topLeft);
+    let brCoords = this.getTileCoordsForWorldPos(bottomRight);
+    this.requestTilesInCoordRange(tlCoords, brCoords);
+  }
+
+  cull() {
+    // TODO: This is doing the opposite of what it should be it looks like: It culls object in the camera and leaves the rest
+    //  Could it be related to the camera jump at the start? I've tried setting a time out and waiting, but no dice...
+    let culled = this.sceneRef.cameras.main.cull(this.renderedObjects);
+    console.log(culled.length);
+    culled.forEach((renderObject) => {
+      this.recycleBin[renderObject.type] = renderObject;
+      renderObject.renderFlags = 0;
+      renderObject.active = false;
+    });
+
+    this.renderedObjects = this.renderedObjects.filter(ro => culled.indexOf(ro) == -1);
+  }
+
+  clearForestAround(worldPos, radius) {
+    let centerCoords = this.getTileCoordsForWorldPos(worldPos);
+    let dirts = [];
+
+    for (let y = centerCoords.y - radius; y <= centerCoords.y + radius; y++) {
+      for (let x = centerCoords.x - radius; x <= centerCoords.x + radius; x++) {
+        dirts.push({x: x, y: y, object: 'dirt'});
+      }
+    }
+
+    this.objectChannel.push("set_obj_at", { objects: dirts });
+  }
+
+  chop(worldPos) {
+    let coords = this.getTileCoordsForWorldPos(worldPos);
+    let tile = this.getTileForCoords(coords.x, coords.y);
+    if (tile.contents && tile.contents.type == 'tree') {
+      // Pre-set the type to stump so that we don't accidentally chop down the same tree twice.
+      tile.contents.type = 'stump';
+      window.setTimeout(() => {
+        this.objectChannel.push("set_obj_at", { objects: [{x: coords.x, y: coords.y, object: 'stump'}] });
+      }, 300);
+      return true;
+    }
+
+    return false;
   }
 }
