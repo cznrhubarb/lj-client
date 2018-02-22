@@ -16,10 +16,18 @@ export default class World {
     this.objectChannel.join()
       .receive("ok", res => { console.log("Joined object channel successfully", res); })
       .receive("error", res => { console.log("Unable to join object channel", res); });
+
+     this.createGrass();
   }
-  
-  //TODO: Need to request more than one at a time
-  //TODO: Need to recycle off screen trees
+
+  createGrass() {
+    for (let y = 0; y < 3000; y += 16) {
+      let xOffset = 2 * (y%32);
+      for (let x = 0; x < 3000; x += 64) {
+        this.sceneRef.add.image(x + xOffset, y, 'grass', Math.floor(Math.random() * 4));
+      }
+    }
+  }
 
   createTileAtCoords(xCoord, yCoord, requestImmediate) {
     let newTile = {};

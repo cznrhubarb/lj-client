@@ -9,6 +9,7 @@ import redGobGfx from './img/goblin_lumberjack_red.png';
 import yellowGobGfx from './img/goblin_lumberjack_yellow.png';
 import treeGfx from './img/tree.png';
 import stumpGfx from './img/stump.png';
+import grassGfx from './img/grasses.png';
 
 let game = new Phaser.Game({
   type: Phaser.AUTO,
@@ -24,6 +25,7 @@ let game = new Phaser.Game({
 function preload() {
   this.load.image('tree', treeGfx);
   this.load.image('stump', stumpGfx);
+  this.load.spritesheet('grass', grassGfx, { frameWidth: 64, frameHeight: 64 });
   
   //const colors = ['blue', 'green', 'red', 'yellow'];
   this.load.spritesheet('blueGob', blueGobGfx, { frameWidth: 64, frameHeight: 64, endFrame: 38*8 });
@@ -147,9 +149,9 @@ function update() {
 
 // THE BIG LIST OF TODO:
 
-// Cull things off screen and put them in the recycle bin
 // Grass
-// Algo to place players nearby but not too nearby
+// Infinite running animation bug
+// Cull things off screen and put them in the recycle bin
 
 // Inventory
 // Buildings
@@ -161,6 +163,7 @@ function update() {
 // Automatic size to fit device
 // Get this shit working on Heroku or lumoludo.com
 
+// Algo to place players nearby but not too nearby
 // Wake up anim
 // Reverse wake up anim
 // Propogate swing anim to other clients
@@ -169,6 +172,7 @@ function update() {
 // Clear forest radius algo
 
 // Real Low Priority:
+// This could probably be in a 'main.js' instead of index.js, but who the fuck really cares
 // Let people put their names in (and add jack to all of them)
 // Let people choose their color
 // Only send network traffic to nearby duders
