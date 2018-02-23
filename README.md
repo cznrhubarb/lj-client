@@ -29,7 +29,7 @@ they fall asleep, wake up in a shared dream with everyone else in the world wher
 
 #### Other Notes
 * Art will be whatever I can scrounge from open source art repositories on the internet.
-  * I will add attributions at the bottom of this file soon.
+  * Attributions will be collected at the bottom of this file.
 * Sound will probably be open source stuff when I get around to it.
   * Or I may try to make my own music and sound effects. I'm not sure yet. It will come down to whether I have any extra time or not.
 * Front-end client is being developed in JavaScript using Phaser 3.0, which was just released a couple weeks ago and has minimal documentation still.
@@ -50,3 +50,12 @@ they fall asleep, wake up in a shared dream with everyone else in the world wher
 * Players chop down trees as they walk.
 * Some grass is in place, but it's just a single patch. It's not set to scroll with the camera yet.
 * The forest is "endless". (There are probably some Number.MAX_VALUE constraints I imagine.)
+
+#### Attributions
+Goblin Lumberjack and Grass tiles by Clint Bellanger
+https://opengameart.org/users/clint-bellanger
+Stump by Pixsquare
+https://opengameart.org/users/pixquare
+Trees by b_o
+https://opengameart.org/content/pine-tree-tiles
+
