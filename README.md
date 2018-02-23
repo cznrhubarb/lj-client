@@ -53,9 +53,14 @@ they fall asleep, wake up in a shared dream with everyone else in the world wher
 
 #### Attributions
 Goblin Lumberjack and Grass tiles by Clint Bellanger
-https://opengameart.org/users/clint-bellanger
+ 
+  https://opengameart.org/users/clint-bellanger
+
 Stump by Pixsquare
-https://opengameart.org/users/pixquare
+
+  https://opengameart.org/users/pixquare
+
 Trees by b_o
-https://opengameart.org/content/pine-tree-tiles
+
+  https://opengameart.org/content/pine-tree-tiles
 
