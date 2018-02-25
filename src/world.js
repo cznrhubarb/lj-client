@@ -4,6 +4,7 @@ export default class World {
     this.tiles = {};
     this.recycleBin = {};
     this.renderedObjects = [];
+    this.grasses = [];
 
     this.lastCamCenter = null;
 
@@ -21,10 +22,20 @@ export default class World {
   }
 
   createGrass() {
-    for (let y = 0; y < 3000; y += 16) {
+    this.fillWidth = Math.floor(this.sceneRef.cameras.main.width/64);
+    this.fillWidth += this.fillWidth%2 ? 5 : 4;
+    this.fillWidth *= 64;
+
+    this.fillHeight = Math.floor(this.sceneRef.cameras.main.height/16);
+    this.fillHeight += this.fillHeight%2 ? 5 : 4;
+    this.fillHeight *= 16;
+
+    for (let y = 0; y < this.fillHeight; y += 16) {
       let xOffset = 2 * (y%32);
-      for (let x = 0; x < 3000; x += 64) {
-        this.sceneRef.add.image(x + xOffset, y, 'grass', Math.floor(Math.random() * 4));
+      for (let x = 0; x < this.fillWidth; x += 64) {
+        let grass = this.sceneRef.add.image(x + xOffset - 16, y - 16, 'grass', Math.floor(Math.random() * 4));
+        grass.setOrigin(0, 0);
+        this.grasses.push(grass);
       }
     }
   }
@@ -46,26 +57,19 @@ export default class World {
     let tile = this.getTileForCoords(xCoord, yCoord);
     let worldPos = this.getWorldPosForTileCoords(xCoord, yCoord);
 
-    // TODO: Don't think this is the correct way to 'turn off' sprites
     if (tile.contents) {
-      //tile.contents.setTexture(type);
-      //return;
-
-      //tile.contents.destroy();
-      //tile.contents = null;
-
-      this.recycleBin[tile.contents.type] = tile.contents;
-      tile.contents.renderFlags = 0;
-      tile.contents.active = false;
-      tile.contents = null;
+      this.recycle(tile.contents);
     }
 
     if (type != 'dirt') {
       let obj;
-      if (this.recycleBin[type] && this.recycleBin.length > 0) {
-        obj = this.recycleBin.pop();
+      if (this.recycleBin[type] && this.recycleBin[type].length > 0) {
+        obj = this.recycleBin[type].pop();
         obj.renderFlags = 15;
         obj.active = true;
+        obj.x = worldPos.x;
+        obj.y = worldPos.y;
+        obj.depth = obj.y;
       } else {
         obj = this.sceneRef.add.sprite(worldPos.x, worldPos.y, type);
         obj.depth = obj.y;
@@ -73,6 +77,7 @@ export default class World {
       }
 
       tile.contents = obj;
+      obj.tile = tile;
 
       this.renderedObjects.push(obj);
     }
@@ -125,11 +130,15 @@ export default class World {
           this.createTileAtCoords(x, y);
         }
 
-        coordList.push({x: x, y: y});
+        if (!this.tiles[x][y].contents) {
+          coordList.push({x: x, y: y});
+        }
       }
     }
     
-    this.objectChannel.push("get_obj_at", { coords: coordList });
+    if (coordList.length > 0) {
+      this.objectChannel.push("get_obj_at", { coords: coordList });
+    }
   }
 
   isStaggeredRow(pos) {
@@ -151,6 +160,10 @@ export default class World {
       this.forceWorldUpdateInCameraRect(topLeft, bottomRight);
 
       this.lastCamCenter = {x: newCenterWorldPos.x, y: newCenterWorldPos.y};
+
+      // Update culling since we just teleported.
+      this.cull();
+
       return false;
     }
     
@@ -191,7 +204,7 @@ export default class World {
 
     // If we're gonna chop, let's just cull as well.
     if (shouldChop) {
-      //this.cull();
+      this.cull();
     }
 
     return shouldChop;
@@ -206,15 +219,75 @@ export default class World {
   cull() {
     // TODO: This is doing the opposite of what it should be it looks like: It culls object in the camera and leaves the rest
     //  Could it be related to the camera jump at the start? I've tried setting a time out and waiting, but no dice...
-    let culled = this.sceneRef.cameras.main.cull(this.renderedObjects);
-    console.log(culled.length);
-    culled.forEach((renderObject) => {
-      this.recycleBin[renderObject.type] = renderObject;
-      renderObject.renderFlags = 0;
-      renderObject.active = false;
+    // let culled = this.sceneRef.cameras.main.cull(this.renderedObjects);
+    // this.renderedObjects.forEach((renderObject) => {
+    //   this.recycleBin[renderObject.type] = renderObject;
+    //   renderObject.renderFlags = 0;
+    //   renderObject.active = false;
+    // });
+
+    // this.renderedObjects = this.renderedObjects.filter(ro => culled.indexOf(ro) == -1);
+
+    let cam = this.sceneRef.cameras.main;
+
+    // Manually cull, because the camera hasn't updated yet at this point and the cull function doesn't seem to work
+    this.renderedObjects = this.renderedObjects.filter(ro => {
+      let tl = ro.getTopLeft();
+      let br = ro.getBottomRight();
+      if (tl.x > this.lastCamCenter.x + cam.width ||
+          tl.y > this.lastCamCenter.y + cam.height ||
+          br.x < this.lastCamCenter.x - cam.width ||
+          br.y < this.lastCamCenter.y - cam.height) {
+        this.recycle(ro);
+        return false;
+      }
+      return true;
     });
 
-    this.renderedObjects = this.renderedObjects.filter(ro => culled.indexOf(ro) == -1);
+    // Let's roll some grass
+    this.grasses.forEach(grass => {
+      while (grass.x + grass.width > this.lastCamCenter.x + cam.width/2 + 64) {
+        grass.x -= this.fillWidth;
+      }
+      while (grass.y + grass.height > this.lastCamCenter.y + cam.height/2 + 64) {
+        grass.y -= this.fillHeight;
+      }
+
+      while (grass.x < this.lastCamCenter.x - cam.width/2 - 64) {
+        grass.x += this.fillWidth;
+      }
+      while (grass.y < this.lastCamCenter.y - cam.height/2 - 64) {
+        grass.y += this.fillHeight;
+      }
+
+      grass.depth = grass.y - 1000;
+    });
+  }
+
+  recycle(renderObject) {
+    // This check shouldn't be necessary if everything was working properly, but it's not.
+    //  Maybe a single RO is getting placed into the list more than once?
+    //  Or there are overlapping calls being made to cull?
+    //  TODO: Investigate and fix.
+    if (renderObject.tile) {
+      // TODO: Don't know what the correct way to 'turn off' sprites is, so we can't recycle them yet.
+      //renderObject.renderFlags = 0;
+      //renderObject.active = false;
+      
+      // if (this.recycleBin[renderObject.type]) {
+      //   this.recycleBin[renderObject.type].push(renderObject);
+      // } else {
+      //   this.recycleBin[renderObject.type] = [ renderObject ];
+      // }
+      
+      renderObject.tile.contents = null;
+      renderObject.tile = null;
+      // Fuck it, we'll do it live.
+      // Recycling is for nerds anyway.
+      renderObject.destroy();
+    }
+
+    
   }
 
   clearForestAround(worldPos, radius) {
