@@ -64,3 +64,15 @@ Trees by b_o
 
   https://opengameart.org/content/pine-tree-tiles
 
+Rope icon by Pixture
+
+  http://www.iconarchive.com/show/board-game-icons-by-pixture/Rope-icon.html
+
+Building icon by IronDevil
+
+  http://www.iconarchive.com/show/ids-3d-icons-12-icons-by-iron-devil/Big-pink-house-icon.html
+
+Other resource icons by 7soul1
+
+  https://7soul1.deviantart.com/art/420-Pixel-Art-Icons-for-RPG-129892453
+  https://7soul1.deviantart.com/art/15-Quest-Related-Icons-134333487

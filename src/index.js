@@ -2,7 +2,6 @@ import Phaser from 'phaser';
 import {Socket} from 'phoenix';
 import World from './world';
 import Lumberjack from './lumberjack';
-import {uuidv4} from './utils.js';
 
 import blueGobGfx from './img/goblin_lumberjack_blue.png';
 import greenGobGfx from './img/goblin_lumberjack_green.png';
@@ -11,6 +10,9 @@ import yellowGobGfx from './img/goblin_lumberjack_yellow.png';
 import treeGfx from './img/tree.png';
 import stumpGfx from './img/stump.png';
 import grassGfx from './img/grasses.png';
+import resourceGfx from './img/resource_icons.png';
+import backpackGfx from './img/backpack.png';
+import buildingGfx from './img/building.png';
 
 let game = new Phaser.Game({
   type: Phaser.AUTO,
@@ -26,7 +28,10 @@ let game = new Phaser.Game({
 function preload() {
   this.load.image('tree', treeGfx);
   this.load.image('stump', stumpGfx);
+  this.load.image('backpack', backpackGfx);
+  this.load.image('building', buildingGfx);
   this.load.spritesheet('grass', grassGfx, { frameWidth: 64, frameHeight: 64 });
+  this.load.spritesheet('resources', resourceGfx, { frameWidth: 32, frameHeight: 32 });
   
   //const colors = ['blue', 'green', 'red', 'yellow'];
   this.load.spritesheet('blueGob', blueGobGfx, { frameWidth: 64, frameHeight: 64, endFrame: 38*8 });
@@ -38,13 +43,6 @@ function preload() {
 let channels = {};
 
 function create () {
-
-  let guid = localStorage.getItem('guid');
-  if (!guid) {
-    guid = uuidv4();
-    localStorage.setItem('guid', guid);
-  }
-  
   const colors = ['blue', 'green', 'red', 'yellow'];
 
   colors.forEach((color) => {
@@ -53,14 +51,9 @@ function create () {
 
   // HACK
   let clientName = "red";
-  let color = colors[Math.floor(Math.random()*colors.length)];
-  let localjack = new Lumberjack(clientName, color, this, true);
-  this.localjack = localjack;
   let connectedJacks = {};
-  connectedJacks[clientName] = localjack;
   
   this.cameras.main.setBackgroundColor('#190D07');
-  this.cameras.main.startFollow(localjack.sprite);
 
   this.input.on('pointerdown', function(pointer) {
     this.lastPointer = {
@@ -78,17 +71,18 @@ function create () {
     this.lastPointer = null;
   }, this);
 
-  let devSocket = new Socket("ws://localhost:4000/socket", {params: {username: clientName, guid: guid}});
+  let devSocket = new Socket("ws://localhost:4000/socket", {params: {username: clientName}});
   devSocket.connect();
 
-  let world = new World(devSocket, this);
+  let world = new World(devSocket, this, connectedJacks);
+  this.world = world;
 
   channels.position = devSocket.channel("player:position", {});
   channels.position.on("presence_diff", diff => {
     Object.keys(diff.leaves).forEach(function(dcName) {
       // TODO: Play the dead animation, with a callback on complete to remove this lumberjack.
       //  Unfortunately callbacks are linked to animations, not instances of animations...
-      connectedJacks[dcName].destroy();
+      connectedJacks[dcName].sprite.destroy();
       connectedJacks[dcName] = null;
     });
   });
@@ -98,8 +92,12 @@ function create () {
       // Must create the new lumberjack
       // Color shouldn't be randomly decided. Needs to be sent over with initial position maybe?
       //  Maybe put into state?
-      color = colors[Math.floor(Math.random()*colors.length)];
-      lumberingjack = new Lumberjack(msg.username, color, this);
+      lumberingjack = new Lumberjack(msg.username, msg.color, this);
+      if (msg.username == clientName) {
+        lumberingjack.isClient = true;
+        this.localjack = lumberingjack;
+        this.cameras.main.startFollow(lumberingjack.sprite);
+      }
       connectedJacks[msg.username] = lumberingjack;
     }
 
@@ -115,6 +113,15 @@ function create () {
           lumberingjack.chop();
         }
       }
+    }
+  });
+  // I feel like I should make other channels or something, but I don't know what I'm doing and I can't slow down to find out at this point...
+  channels.position.on("inventory_update", msg => {
+    let holdingjack = connectedJacks[msg.username];
+    if (holdingjack) {
+      Object.assign(holdingjack.inventory, msg.inventory);
+      console.log("Inventory updated for " + holdingjack.name + ":");
+      console.table(holdingjack.inventory);
     }
   });
   channels.position.join()
@@ -146,43 +153,24 @@ function loadAnims(color) {
 }
 
 function update() {
-  // TODO: This may need to be throttled.
-  let requestPayload = this.localjack.updateInput(this.lastPointer);
-  if (requestPayload) {
-    channels.position.push("req_position", requestPayload);
+  // TODO: This may need to be throttled. Should be able to use Phx.Presence instead of sending constant idle messages
+  if (this.localjack) {
+    let requestPayload = this.localjack.updateInput(this.lastPointer);
+    if (requestPayload) {
+      channels.position.push("req_position", requestPayload);
+    }
   }
+
+  this.world.updateResources();
 }
 
 // THE BIG LIST OF TODO:
 
-// Remember log on per device - localStorage?
-//  Store player info on server
-//  Return that info to player on log in
+// Fix double Terrain DB insert bug that keeps killing the server
 // Clear forest radius algo
 // Inventory
-//  Brainstorm some other collectibles
-//    Gems
-//    Stone
-//    Gold
-//    Paper
-//    Food
-//    Bait/traps
-//    Plants/seedlings/crops/flowers
-//    Electricity
-//    Fuel
-//    Clock/hourglass/watch
-//    Magic
-//    Glue
-//    Cloth
-//    Tools
-//    Steel
-//    Water
-//    Cardboard
 //  Input method to show inventory
-//  Find/create some assets     (Maybe use all emojis?)
 //  Show inventory bag
-//  Collect wood & show count in bag
-//  Store inventory on server
 // Buildings
 //  Brainstorm some building effects
 //    Generate non-wood resources
@@ -195,15 +183,17 @@ function update() {
 //    Skill tree equivalent (if skill trees are rare objects to find)
 //    Fast travel between points
 //    Anchor (adds permanence or semipermanence to other buildings)
+//    Vanity/Visual only
 //  Find/create some assets
 //  Input method to create a building
 //  Server -> Clear forest, place building -> All players
 //  Propagate/manage effects (probably server side handling?)
 // Skill tree
 //  Brainstorm some skills
-//   Possible skill archetypes? Builder, Gatherer, Teammate, Settler
+//   Possible skill archetypes? Builder, Gatherer, Leader, Settler, (later on maybe Dreamer)
 //*** Builder */
-//    The ability to build at all / More build options / better versions of buildings
+//    The ability to build at all
+//    More build options / better versions of buildings
 //    Using one resource for another (at heavy cost)
 //    Build faster
 //    Build for cheaper
@@ -213,7 +203,7 @@ function update() {
 //    Walk faster
 //    Collect more mats from doing things
 //    Collect alternative mats in addition to traditional
-//*** Teammate */
+//*** Leader */
 //    Tracking (find players/buildings off screen)
 //    Ability to emote (or other limited forms of communication)
 //    Guiding light, other players will occasionally get a radar beep for your character
@@ -224,7 +214,8 @@ function update() {
 //    Chopped trees stay down longer
 //    Body lasts longer (or shorter?) before fading after log off
 //    Small chance to log in to the same spot you logged out at
-//*** Graverobber? Necromancer? Dream Genie? */
+//    Upgrade buildings to new tiers
+//*** Dreamer */
 //    Able to see other player's ghosts after their bodies have faded
 //    Able to send a push notification to another nearby player immediately after the log off (so they could log back on and meet up)
 //    |-> And able to pull player back to the place they logged out
@@ -237,24 +228,23 @@ function update() {
 //  Grow the skill tree
 // Introduced a bug somewhere. Now world is missing a line of trees. Seen when heading north, and repeats itself.
 // Non-permanence?
-// Interesting sights to see
-// Log on blurbs
 
+// Log in/Character creation
+//  Let people put their names in (and add jack to all of them)
+//  Let people choose their color
 // Automatic size to fit device
 // Get this shit working on Heroku or lumoludo.com
-
 // Loading screen
 // Wake up anim
 // Reverse wake up anim
 // Infinite running animation bug
-// Propogate swing anim to other clients
-// Progogate color to other clients
+// Propagate swing anim to other clients
+// Interesting sights to see
+// Log on blurbs
 
 // Real Low Priority:
 // Update origin points for trees and gobbos so that they match their 'feet'.
 // Algo to place players nearby but not too nearby
-// Let people put their names in (and add jack to all of them)
-// Let people choose their color
 // Only send network traffic to nearby duders
 // How to split load across multiple servers?
 // Chop anim happens when gobbo is already inside tree most of the time. Need to forward detect against movement. 

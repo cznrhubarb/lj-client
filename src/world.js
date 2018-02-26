@@ -1,10 +1,12 @@
 export default class World {
-  constructor(devSocket, scene) {
+  constructor(devSocket, scene, lumberjackList) {
     this.sceneRef = scene;
+    this.lumberjacksRef = lumberjackList;
     this.tiles = {};
     this.recycleBin = {};
     this.renderedObjects = [];
     this.grasses = [];
+    this.resources = [];
 
     this.lastCamCenter = null;
 
@@ -14,11 +16,14 @@ export default class World {
         this.fillTileAtCoords(obj.x, obj.y, obj.object);
       });
     });
+    this.objectChannel.on("spawn_resource", msg => {
+      this.spawnResources(msg);
+    });
     this.objectChannel.join()
       .receive("ok", res => { console.log("Joined object channel successfully", res); })
       .receive("error", res => { console.log("Unable to join object channel", res); });
 
-     this.createGrass();
+    this.createGrass();
   }
 
   createGrass() {
@@ -38,6 +43,45 @@ export default class World {
         this.grasses.push(grass);
       }
     }
+  }
+
+  spawnResources(msg) {
+    const resourceFrames = ["wood", "stone", "steel", "rope", "cloth", "water", "paper", "gems", "gold", "magic"];
+
+    let lumberjack = this.lumberjacksRef[msg.user_to_pickup];
+    let position = msg.spawn_pos;
+    msg.resources.forEach(resPair => {
+      let type = resPair.type;
+      let count = resPair.count;
+      // Actual inventory is saved server side, but this should match up provided people aren't cheating. We double
+      //  check by pulling from the server on login or when building anyway.
+      lumberjack.inventory[type] += count;
+
+      for (let i = 0; i < count; i++) {
+        let worldPos = this.getWorldPosForTileCoords(position.x, position.y);
+        let resource = this.sceneRef.add.image(worldPos.x, worldPos.y, 'resources', resourceFrames.indexOf(type));
+        resource.setScale(0.5);
+        resource.depth = resource.y + 1000;
+        this.resources.push(resource);
+
+        let xOff = Math.random() * 64 - 32;
+        let yOff = Math.random() * 64 - 32;
+        let tween = this.sceneRef.tweens.add({
+          targets: resource,
+          x: worldPos.x + xOff,
+          y: worldPos.y + yOff,
+          ease: 'Quart.easeOut',
+          duration: 750,
+          onComplete: () => {
+            resource.tween = null;
+          }
+        });
+        resource.tween = tween;
+        resource.lumberjack = lumberjack;
+      }
+    });
+
+    console.table(lumberjack.inventory);
   }
 
   createTileAtCoords(xCoord, yCoord, requestImmediate) {
@@ -273,7 +317,7 @@ export default class World {
       // TODO: Don't know what the correct way to 'turn off' sprites is, so we can't recycle them yet.
       //renderObject.renderFlags = 0;
       //renderObject.active = false;
-      
+
       // if (this.recycleBin[renderObject.type]) {
       //   this.recycleBin[renderObject.type].push(renderObject);
       // } else {
@@ -309,12 +353,34 @@ export default class World {
     if (tile.contents && tile.contents.type == 'tree') {
       // Pre-set the type to stump so that we don't accidentally chop down the same tree twice.
       tile.contents.type = 'stump';
+      // The timeout below is synced to the player chop animation
+      // TODO: Chopping needs to happen server side to prevent cheating
       window.setTimeout(() => {
-        this.objectChannel.push("set_obj_at", { objects: [{x: coords.x, y: coords.y, object: 'stump'}] });
+        //this.objectChannel.push("set_obj_at", { objects: [{x: coords.x, y: coords.y, object: 'stump'}] });
+        this.objectChannel.push("chop", { x: coords.x, y: coords.y });
       }, 300);
       return true;
     }
 
     return false;
+  }
+
+  updateResources() {
+    this.resources = this.resources.filter(res => {
+      if (!res.tween) {
+        let follow = res.lumberjack.sprite;
+        let delta = {x: follow.x - res.x, y: follow.y - res.y};
+        let deltaLen = Math.sqrt(delta.x * delta.x + delta.y * delta.y);
+        res.x += delta.x / deltaLen * 5;
+        res.y += delta.y / deltaLen * 5;
+
+        if (deltaLen <= 5) {
+          res.destroy();
+          return false;
+        }
+      }
+
+      return true;
+    });
   }
 }

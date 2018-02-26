@@ -6,6 +6,7 @@ export default class Lumberjack {
     this.lastDirection = 'down';
     this.isClient = isClient || false;
     this.isWaitingForServer = true;
+    this.inventory = {};
     this.sprite = this.sceneRef.add.sprite(Number.MAX_VALUE, Number.MAX_VALUE, color + 'Gob');
 
     this.sprite.anims.play('down_idle_' + color);
