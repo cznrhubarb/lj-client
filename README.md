@@ -1,4 +1,4 @@
-# "Lumberjack MMO" (Don't have a name yet)
+# "Do Lumberjacks Dream of Wooden Sheep?" (Don't have a name yet)
 
 ## Dev Log:
 I am making a lumberjack MMO and I have no idea what I am doing. The concept is that players will be people who, every time 
@@ -76,3 +76,12 @@ Other resource icons by 7soul1
 
   https://7soul1.deviantart.com/art/420-Pixel-Art-Icons-for-RPG-129892453
   https://7soul1.deviantart.com/art/15-Quest-Related-Icons-134333487
+
+UI resources and buildings by Kenney
+
+  http://kenney.nl/assets/ui-pack-rpg-expansion
+  http://kenney.nl/assets/hexagon-pack
+  
+Lumberjack font by Alexey Kalinin
+
+  https://www.behance.net/gallery/30812011/Lumberjack-Free-fontThanks

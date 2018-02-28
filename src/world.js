@@ -53,9 +53,6 @@ export default class World {
     msg.resources.forEach(resPair => {
       let type = resPair.type;
       let count = resPair.count;
-      // Actual inventory is saved server side, but this should match up provided people aren't cheating. We double
-      //  check by pulling from the server on login or when building anyway.
-      lumberjack.inventory[type] += count;
 
       for (let i = 0; i < count; i++) {
         let worldPos = this.getWorldPosForTileCoords(position.x, position.y);
@@ -80,8 +77,6 @@ export default class World {
         resource.lumberjack = lumberjack;
       }
     });
-
-    console.table(lumberjack.inventory);
   }
 
   createTileAtCoords(xCoord, yCoord, requestImmediate) {
