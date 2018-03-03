@@ -1,5 +1,6 @@
 const TabbyState = { NoneOpen: 1, InventoryOpen: 2, SkillOpen: 3, BuildingOpen: 4, Transitioning: 5 }
 
+// TODO: The individual tabs should be in their own file and this can just be the opening/closing. This file is getting too unweildy.
 export default class Tabby {
   constructor(sceneRef) {
     this.sceneRef = sceneRef;
@@ -100,6 +101,26 @@ export default class Tabby {
     this.contents[TabbyState.BuildingOpen].push(buildingIcon);
 
     let self = this;
+    const buildings = ["tent", "campfire", "well", "mine_stone", "mine_gold", "papermill", "oven", "beacon"];
+    buildings.forEach((type, idx) => {
+      let xOff = (idx % 3) * 110;
+      let yOff = Math.floor(idx / 3) * 120;
+      let building = this.sceneRef.add.image(890 + xOff, 80 + yOff, type);
+      building.setInteractive();
+      this.shrinkToFit(building, 80, 80);
+      building.setScrollFactor(0);
+      building.depth = Number.MAX_VALUE;
+      if (type != "campfire") {
+        building.setTint(0x303030);
+      }
+      this.contents[TabbyState.BuildingOpen].push(building);
+      
+      building.on('pointerup', function (pointer) {
+        self.sceneRef.buildCallback(type);
+        self.clickTab(TabbyState.BuildingOpen);
+      });
+    });
+
     buildingIcon.on('pointerup', function (pointer) {
       self.clickTab(TabbyState.BuildingOpen);
     });
@@ -173,5 +194,19 @@ export default class Tabby {
         duration: 750
       });
     });
+  }
+
+  shrinkToFit(image, width, height) {
+    if (image.width <= width && image.height <= height) {
+      return;
+    }
+
+    let widthScale = image.width / width;
+    let heightScale = image.height / height;
+    if (widthScale > heightScale) {
+      image.setScale(1/widthScale, 1/widthScale);
+    } else {
+      image.setScale(1/heightScale, 1/heightScale);
+    }
   }
 }

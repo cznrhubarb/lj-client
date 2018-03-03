@@ -20,7 +20,7 @@ export default class Lumberjack {
       spr.anims.play('down_die_' + this.color, 5);
       spr.anims.forward = false;
     } else if (spr.x == newPos.x) {
-      if ((spr.anims.currentAnim.key != 'down_die_' + this.color && spr.anims.currentAnim.key.endsWith('swing_' + this.color))
+      if ((spr.anims.currentAnim.key != 'down_die_' + this.color || spr.anims.currentAnim.key.endsWith('swing_' + this.color))
             || !spr.anims.isPlaying) {
               spr.anims.play(this.lastDirection + '_idle_' + this.color, true);
       }

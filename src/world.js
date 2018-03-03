@@ -16,9 +16,8 @@ export default class World {
         this.fillTileAtCoords(obj.x, obj.y, obj.object);
       });
     });
-    this.objectChannel.on("spawn_resource", msg => {
-      this.spawnResources(msg);
-    });
+    this.objectChannel.on("spawn_resource", this.spawnResources.bind(this));
+    this.objectChannel.on("build_failed", msg => { console.log(msg.reason); });
     this.objectChannel.join()
       .receive("ok", res => { console.log("Joined object channel successfully", res); })
       .receive("error", res => { console.log("Unable to join object channel", res); });
@@ -325,21 +324,6 @@ export default class World {
       // Recycling is for nerds anyway.
       renderObject.destroy();
     }
-
-    
-  }
-
-  clearForestAround(worldPos, radius) {
-    let centerCoords = this.getTileCoordsForWorldPos(worldPos);
-    let dirts = [];
-
-    for (let y = centerCoords.y - radius; y <= centerCoords.y + radius; y++) {
-      for (let x = centerCoords.x - radius; x <= centerCoords.x + radius; x++) {
-        dirts.push({x: x, y: y, object: 'dirt'});
-      }
-    }
-
-    this.objectChannel.push("set_obj_at", { objects: dirts });
   }
 
   chop(worldPos) {
@@ -358,6 +342,11 @@ export default class World {
     }
 
     return false;
+  }
+
+  build(type, worldPos) {
+    let coords = this.getTileCoordsForWorldPos(worldPos);
+    this.objectChannel.push("build", { x: coords.x, y: coords.y, object: type });
   }
 
   updateResources() {

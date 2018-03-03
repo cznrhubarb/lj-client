@@ -32,8 +32,6 @@ function create () {
   // HACK
   let clientName = "red";
   let connectedJacks = {};
-
-  this.tabby = new Tabby(this);
   
   this.cameras.main.setBackgroundColor('#190D07');
 
@@ -58,6 +56,8 @@ function create () {
 
   let world = new World(devSocket, this, connectedJacks);
   this.world = world;
+  this.tabby = new Tabby(this);
+  this.buildCallback = buildCallback.bind(this);
 
   channels.position = devSocket.channel("player:position", {});
   channels.position.on("presence_diff", diff => {
@@ -114,6 +114,11 @@ function create () {
     .receive("error", res => { console.log("Unable to join pos channel", res); });
 
   channels.position.push("wake_up", {});
+}
+
+// Gonna regret not just setting up an event system later probably...
+function buildCallback(type) {
+  this.world.build(type, {x: this.localjack.sprite.x + this.localjack.sprite.width/4, y: this.localjack.sprite.y + this.localjack.sprite.height/2});
 }
 
 function loadAnims(color) {

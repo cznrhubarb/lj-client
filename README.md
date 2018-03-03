@@ -4,6 +4,33 @@
 I am making a lumberjack MMO and I have no idea what I am doing. The concept is that players will be people who, every time 
 they fall asleep, wake up in a shared dream with everyone else in the world where they are lumberjacks in an endless forest.
 
+### V2 (3/3/18):
+![V2 Gathering Screenshot](https://github.com/cznrhubarb/lj-client/blob/master/ScreenshotFriday_v2_gathering.gif?raw=true)
+![V2 Tab UI and Building Screenshot](https://github.com/cznrhubarb/lj-client/blob/master/ScreenshotFriday_v2_tabsNbuilding.gif?raw=true)
+* Server-side persistence has been added for a lot of things: Players, inventories, buildings.
+* Chopping down trees gives you wood now, which goes into your inventory and is used to build buildings.
+* Tab UI system implemented.
+* Found/modified assets for all of the 'alpha' skills, buildings, and resources.
+* Building system implemented. Buildings need to be made in a clearing, and the player has to have the appropriate materials.
+  * Next step is to make sure that the player has the proper skill necessary to build it.
+* Grass scrolls with the camera now.
+* Fixed a few small bugs.
+
+
+### V1 (2/22/18):
+![V1 Screenshot](https://github.com/cznrhubarb/lj-client/blob/master/ScreenshotFriday_v1.gif?raw=true)
+* Players control a lumberjack using single mouseclick/fingertap controls.
+  * The lumberjack is a goblin because I found goblin lumberjack art on an open source game art site.
+  * Player is (mostly) fully animated, with directionality.
+* Multiple client to single server connection is implemented.
+* Player input replicated to other clients (minus some color and animation out-of-syncness).
+* Terrain is stored in a server side database. 
+  * Anything not marked as a specific type in the DB is considered a tree by default.
+  * There are also 'stump's and 'dirt', but dirt is just the absence of a sprite.
+* Players chop down trees as they walk.
+* Some grass is in place, but it's just a single patch. It's not set to scroll with the camera yet.
+* The forest is "endless". (There are probably some Number.MAX_VALUE constraints I imagine.)
+
 #### Goals!
 * There will be no combat and no talking. 
   * I'm thinking you'll still be able to see the names of other players though.
@@ -37,22 +64,8 @@ they fall asleep, wake up in a shared dream with everyone else in the world wher
 * I have no idea how to architect an MMO server, so I will be using worst-practices.
   * It will very likely be easy to cheat at this game if I can't figure a lot of it out.
 
-### V1 (2/22/18):
-![V1 Screenshot](https://github.com/cznrhubarb/lj-client/blob/master/ScreenshotFriday_v1.gif?raw=true)
-* Players control a lumberjack using single mouseclick/fingertap controls.
-  * The lumberjack is a goblin because I found goblin lumberjack art on an open source game art site.
-  * Player is (mostly) fully animated, with directionality.
-* Multiple client to single server connection is implemented.
-* Player input replicated to other clients (minus some color and animation out-of-syncness).
-* Terrain is stored in a server side database. 
-  * Anything not marked as a specific type in the DB is considered a tree by default.
-  * There are also 'stump's and 'dirt', but dirt is just the absence of a sprite.
-* Players chop down trees as they walk.
-* Some grass is in place, but it's just a single patch. It's not set to scroll with the camera yet.
-* The forest is "endless". (There are probably some Number.MAX_VALUE constraints I imagine.)
-
 #### Attributions
-Goblin Lumberjack and Grass tiles by Clint Bellanger
+Goblin Lumberjack, Grass tiles, and gold treasure icons by Clint Bellanger
  
   https://opengameart.org/users/clint-bellanger
 
@@ -85,3 +98,5 @@ UI resources and buildings by Kenney
 Lumberjack font by Alexey Kalinin
 
   https://www.behance.net/gallery/30812011/Lumberjack-Free-fontThanks
+
+Emojis from the standard Apple set

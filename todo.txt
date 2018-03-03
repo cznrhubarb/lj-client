@@ -1,0 +1,119 @@
+ THE BIG LIST OF TODO:
+
+ Skill tree
+  Brainstorm some skills
+*** Builder */
+    The ability to build at all
+    More build options / better versions of buildings
+*** Gatherer */
+    Chop faster
+    Chop dash
+    Collect alternative mats in addition to traditional
+*** Leader */
+    Tracking (find players/buildings off screen)
+    Ability to emote (or other limited forms of communication)
+    Other nearby players gain benefits (chop, buildspd, buildcost, etc)
+  Design idea: Spreading into other archetypes trees costs MORE points, instead of all early branches being cheap.
+    More like D&D multiclassing than UO 30%-in-a-ton-of-skills style
+  Find/create some assets
+  Input method to open skill tree, choose new skills
+  Server -> Store skills -> Return to player on next log in
+ Buildings
+    Send list of buildings in DB to player on load?? Use this to populate building window??
+  Server -> 
+    [X]Check materials, 
+    [ ]Check build skill unlocked
+    [X]Check physical space for viability
+    [X]Reduce materials
+    [X]Clear forest
+    [X]place building
+        -> [X]All players
+  Propagate/manage effects (probably server side handling. Imagine buildings go in a list of 'active' things that send out heartbeat effects to nearby players. Will need to add an update loop to the server though.)
+    Generate non-wood resources
+    Beacon
+    AoE effects (faster walk, chop, collection amount)
+ Don't move while click tabs and things
+ Tooltips for skills and buildings
+ Non-permanence?
+
+ Fonts
+ Log in/Character creation
+  Let people put their names in (and add jack to all of them)
+  Let people choose their color
+ Automatic size to fit device
+ Get this shit working on Heroku or lumoludo.com
+ Sound
+
+ Loading screen
+ Wake up anim
+ Reverse wake up anim
+ Propagate swing anim to other clients
+ Interesting sights to see
+ Log on blurbs
+
+ Real Low Priority:
+ Need to store some of this data on the server "live" instead of hitting the DB constantly.
+ Need to find a way to split up regions on the server so that every active building and player isn't getting all info from each other all the time.
+ Update origin points for trees and gobbos so that they match their 'feet'.
+ Algo to place players nearby but not too nearby
+ Only send network traffic to nearby duders
+ How to split load across multiple servers?
+ Chop anim happens when gobbo is already inside tree most of the time. Need to forward detect against movement. 
+ User authentication
+ This could probably be in a 'main.js' instead of index.js, but who the fuck really cares
+ Gonna need to move to sprite sheets at some time probably.
+
+ ======================================= DESIGN SHIT =========================================
+ Skill tree is actual tree
+ Skills allow player to cut faster, build faster, build with less materials, buildings live longer after log off
+ Player's accomplishments in a given session affect how much xp gained per hour while logged off (or how many hours xp is gained for)
+ Perhaps there are multiple skill trees found randomly, and you have to chop down a skill tree
+  to gain a new skill
+
+ Alternative design: Trees do not grow back (but buildings still decay?)
+  Players always given a mysterious unexplained compass needle
+
+ Bonuses for meeting/participating with other players?
+ Perhaps some buildings require multiple players to work together to build
+ Buildings don't show up in build list until available: Create some unknowns for players to discover
+
+ Maybe player created buildings turn into ruins and become the interesting things other players find later
+
+
+ Buildings cut for the demo
+  Brainstorm some building effects
+    Trade wood for non-wood resources
+    Clear large swath of surrounding forest
+    Increase XP gain
+    Flags/Direction markers
+    AoE effects (faster walk, chop, collection amount)
+    Skill tree equivalent (if skill trees are rare objects to find)
+    Fast travel between points
+    Anchor (adds permanence or semipermanence to other buildings)
+
+ Skills cut for the demo
+  Brainstorm some skills
+*** Builder */
+    Build faster
+    Build for cheaper
+    Using one resource for another (at heavy cost)
+*** Gatherer */
+    Collect more mats from doing things
+    Stump grinding - turn stumps into extra materials sometimes
+    Walk faster
+    Teleport
+*** Leader */
+    Guiding light, other players will occasionally get a radar beep for your character
+    Log in closer to other players
+    Jump to player
+*** Settler */
+    Buildings last longer
+    Chopped trees stay down longer
+    Body lasts longer (or shorter?) before fading after log off
+    Small chance to log in to the same spot you logged out at
+    Upgrade buildings to new tiers
+*** Dreamer */
+    Able to see other player's ghosts after their bodies have faded
+    Able to send a push notification to another nearby player immediately after the log off (so they could log back on and meet up)
+    |-> And able to pull player back to the place they logged out
+    Able to see a brief beacon when another player logs off within a certain distance
