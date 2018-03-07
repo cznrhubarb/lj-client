@@ -32,7 +32,6 @@
     Generate non-wood resources
     Beacon
     AoE effects (faster walk, chop, collection amount)
- Don't move while click tabs and things
  Tooltips for skills and buildings
  Non-permanence?
 
@@ -90,6 +89,7 @@
     Skill tree equivalent (if skill trees are rare objects to find)
     Fast travel between points
     Anchor (adds permanence or semipermanence to other buildings)
+    Roads - faster walking, long duration
 
  Skills cut for the demo
   Brainstorm some skills

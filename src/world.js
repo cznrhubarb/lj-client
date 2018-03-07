@@ -367,4 +367,19 @@ export default class World {
       return true;
     });
   }
+
+  // Super hack!
+  //  I want to block input for UI tabs and such. The correct way to do this would be to set up a scene object
+  //    for the GUI. Unfortunately, I don't want to spend the time to figure out the idiomatic way of doing this.
+  //  Instead I can use the stopPropagation method of the input manager. But it still depends on which object
+  //    has its input callbacks hit first, and the overarching scene callbacks always hit first.
+  //    So by putting these all on the grass instead, I can now stopPropagation up in the UI. Much less efficient, I'm sure.
+  setInputFuncs(onDown, onMove, onUp) {
+    this.grasses.forEach(grass => {
+      grass.setInteractive();
+      grass.on('pointerdown', onDown);
+      grass.on('pointermove', onMove);
+      grass.on('pointerup', onUp);
+    });
+  }
 }

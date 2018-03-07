@@ -34,29 +34,47 @@ function create () {
   let connectedJacks = {};
   
   this.cameras.main.setBackgroundColor('#190D07');
+  
+  this.tabby = new Tabby(this);
 
-  this.input.on('pointerdown', function(pointer) {
+  let onDown = function(pointer) {
     this.lastPointer = {
       x: pointer.x - this.cameras.main.width/2,
       y: pointer.y - this.cameras.main.height/2
     };
-  }, this);
-  this.input.on('pointermove', function(pointer) {
+  };
+  let onMove = function(pointer) {
     if (this.lastPointer) {
       this.lastPointer.x = pointer.x - this.cameras.main.width/2;
       this.lastPointer.y = pointer.y - this.cameras.main.height/2;
     }
-  }, this)
-  this.input.on('pointerup', function(pointer) {
+  }
+  let onUp = function(pointer) {
     this.lastPointer = null;
-  }, this);
+  };
 
-  let devSocket = new Socket("ws://localhost:4000/socket", {params: {username: clientName}});
+  // this.input.on('pointerdown', function(pointer) {
+  //   this.lastPointer = {
+  //     x: pointer.x - this.cameras.main.width/2,
+  //     y: pointer.y - this.cameras.main.height/2
+  //   };
+  // }, this);
+  // this.input.on('pointermove', function(pointer) {
+  //   if (this.lastPointer) {
+  //     this.lastPointer.x = pointer.x - this.cameras.main.width/2;
+  //     this.lastPointer.y = pointer.y - this.cameras.main.height/2;
+  //   }
+  // }, this);
+  // this.input.on('pointerup', function(pointer) {
+  //   this.lastPointer = null;
+  // }, this);
+
+  let devSocket = new Socket("ws://lj-sawver.herokuapp.com/socket", {params: {username: clientName}});
   devSocket.connect();
 
   let world = new World(devSocket, this, connectedJacks);
   this.world = world;
-  this.tabby = new Tabby(this);
+  this.world.setInputFuncs(onDown.bind(this), onMove.bind(this), onUp.bind(this));
   this.buildCallback = buildCallback.bind(this);
 
   channels.position = devSocket.channel("player:position", {});

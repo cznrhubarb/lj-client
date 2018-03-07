@@ -13,13 +13,13 @@ import grassGfx from './img/grasses.png';
 import resourceGfx from './img/resource_icons.png';
 
 // Tabby stuff
-import backpackGfx from './img/backpack.png';
-import axeGfx from './img/axe.png';
-import buildingGfx from './img/building.png';
-import xGfx from './img/x.png';
 import inventoryTabGfx from './img/inventory_tab.png';
 import skillTabGfx from './img/skill_tab.png';
 import buildingTabGfx from './img/building_tab.png';
+import inventoryPanelGfx from './img/inventory_panel.png';
+import skillPanelGfx from './img/skill_panel.png';
+import buildingPanelGfx from './img/building_panel.png';
+import tooltipGfx from './img/tooltip.png';
 
 // Buildings
 import beaconGfx from './img/buildings/beacon.png';
@@ -31,16 +31,37 @@ import papermillGfx from './img/buildings/papermill.png';
 import tentGfx from './img/buildings/tent.png';
 import wellGfx from './img/buildings/well.png';
 
+// Skills
+import buffBuildGfx from './img/skills/buffbuild.png';
+import buffChopGfx from './img/skills/buffchopgather.png';
+import buffWalkGfx from './img/skills/buffwalk.png';
+import buildBeaconGfx from './img/skills/build_beacon.png';
+import buildFireGfx from './img/skills/build_fire.png';
+import buildGoldMineGfx from './img/skills/build_mine_gold.png';
+import buildStoneMineGfx from './img/skills/build_mine_stone.png';
+import buildOvenGfx from './img/skills/build_oven.png';
+import buildPapermillGfx from './img/skills/build_papermill.png';
+import buildTentGfx from './img/skills/build_tent.png';
+import buildWellGfx from './img/skills/build_well.png';
+import chopDash1Gfx from './img/skills/chopdash1.png';
+import chopDash2Gfx from './img/skills/chopdash2.png';
+import chopFast1Gfx from './img/skills/chopfast1.png';
+import chopFast2Gfx from './img/skills/chopfast2.png';
+import chopFast3Gfx from './img/skills/chopfast3.png';
+import emoteGfx from './img/skills/emoji.png';
+import gatherClothGfx from './img/skills/gather_cloth.png';
+import gaterGemGfx from './img/skills/gather_gem.png';
+import gatherMagicGfx from './img/skills/gather_magic.png';
+import gatherRopeGfx from './img/skills/gather_rope.png';
+import trackBuildingGfx from './img/skills/track_building.png';
+import trackPlayerGfx from './img/skills/track_player.png';
+
 // Moved this out to its own file so that it doesn't clog up index.js
 //  Later on, maybe this could be a class that only loads what is necessary instead of everything ever.
 //  Also, maybe a lot of these graphics should be in a sprite sheet. But later.
 export function LoadGraphics(sceneRef) {
   sceneRef.load.image('tree', treeGfx);
   sceneRef.load.image('stump', stumpGfx);
-  sceneRef.load.image('backpack', backpackGfx);
-  sceneRef.load.image('axe', axeGfx);
-  sceneRef.load.image('building', buildingGfx);
-  sceneRef.load.image('x', xGfx);
 
   sceneRef.load.image('beacon', beaconGfx);
   sceneRef.load.image('campfire', campfireGfx);
@@ -54,6 +75,10 @@ export function LoadGraphics(sceneRef) {
   sceneRef.load.image('inventoryTab', inventoryTabGfx);
   sceneRef.load.image('skillTab', skillTabGfx);
   sceneRef.load.image('buildingTab', buildingTabGfx);
+  sceneRef.load.image('inventoryPanel', inventoryPanelGfx);
+  sceneRef.load.image('skillPanel', skillPanelGfx);
+  sceneRef.load.image('buildingPanel', buildingPanelGfx);
+  sceneRef.load.image('tooltip', tooltipGfx);
 
   sceneRef.load.spritesheet('grass', grassGfx, { frameWidth: 64, frameHeight: 64 });
   sceneRef.load.spritesheet('resources', resourceGfx, { frameWidth: 32, frameHeight: 32 });
@@ -62,4 +87,28 @@ export function LoadGraphics(sceneRef) {
   sceneRef.load.spritesheet('greenGob', greenGobGfx, { frameWidth: 64, frameHeight: 64, endFrame: 38*8 });
   sceneRef.load.spritesheet('redGob', redGobGfx, { frameWidth: 64, frameHeight: 64, endFrame: 38*8 });
   sceneRef.load.spritesheet('yellowGob', yellowGobGfx, { frameWidth: 64, frameHeight: 64, endFrame: 38*8 });
+
+  sceneRef.load.image('skill_buffBuild', buffBuildGfx);
+  sceneRef.load.image('skill_buffChop', buffChopGfx);
+  sceneRef.load.image('skill_buffWalk', buffWalkGfx);
+  sceneRef.load.image('skill_buildBeacon', buildBeaconGfx);
+  sceneRef.load.image('skill_buildFire', buildFireGfx);
+  sceneRef.load.image('skill_buildGoldMine', buildGoldMineGfx);
+  sceneRef.load.image('skill_buildStoneMine', buildStoneMineGfx);
+  sceneRef.load.image('skill_buildOven', buildOvenGfx);
+  sceneRef.load.image('skill_buildPapermill', buildPapermillGfx);
+  sceneRef.load.image('skill_buildTent', buildTentGfx);
+  sceneRef.load.image('skill_buildWell', buildWellGfx);
+  sceneRef.load.image('skill_chopDash1', chopDash1Gfx);
+  sceneRef.load.image('skill_chopDash2', chopDash2Gfx);
+  sceneRef.load.image('skill_chopFast1', chopFast1Gfx);
+  sceneRef.load.image('skill_chopFast2', chopFast2Gfx);
+  sceneRef.load.image('skill_chopFast3', chopFast3Gfx);
+  sceneRef.load.image('skill_emote', emoteGfx);
+  sceneRef.load.image('skill_gatherCloth', gatherClothGfx);
+  sceneRef.load.image('skill_gaterGem', gaterGemGfx);
+  sceneRef.load.image('skill_gatherMagic', gatherMagicGfx);
+  sceneRef.load.image('skill_gatherRope', gatherRopeGfx);
+  sceneRef.load.image('skill_trackBuilding', trackBuildingGfx);
+  sceneRef.load.image('skill_trackPlayer', trackPlayerGfx);
 }

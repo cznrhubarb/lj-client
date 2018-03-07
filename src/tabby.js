@@ -1,39 +1,42 @@
 const TabbyState = { NoneOpen: 1, InventoryOpen: 2, SkillOpen: 3, BuildingOpen: 4, Transitioning: 5 }
 
-// TODO: The individual tabs should be in their own file and this can just be the opening/closing. This file is getting too unweildy.
+// TODO: The individual tabs should be in their own file and this can just be the opening/closing. This file is getting too unwieldy.
+//    Also, each tab should be a Phaser Scene for the most idiomatic approach to input, camera, etc.
 export default class Tabby {
   constructor(sceneRef) {
     this.sceneRef = sceneRef;
+    this.create();
+  }
+
+  create() {
+    this.sceneRef = this.sceneRef || this;
     this.tabs = {};
-    this.icons = {};
     this.contents = { [TabbyState.InventoryOpen]: [], [TabbyState.SkillOpen]: [], [TabbyState.BuildingOpen]: [] };
     this.inventoryCounts = {};
 
-    this.createInventoryTab(sceneRef);
-    this.createSkillTab(sceneRef);
-    this.createBuildingTab(sceneRef);
-
-    this.xIcon = sceneRef.add.sprite(800-100, 15, 'x');
-    this.xIcon.setScrollFactor(0);
-    this.xIcon.depth = Number.MAX_VALUE;
-    this.xIcon.alpha = 0;
+    this.createInventoryTab(this.sceneRef);
+    this.createSkillTab(this.sceneRef);
+    this.createBuildingTab(this.sceneRef);
 
     this.state = TabbyState.NoneOpen;
   }
 
   createInventoryTab() {
-    let inventoryTab = this.sceneRef.add.sprite(800-75, 0, 'inventoryTab');
+    let inventoryTab = this.sceneRef.add.sprite(800-75, 15, 'inventoryTab');
     inventoryTab.setOrigin(0,0);
     inventoryTab.setScrollFactor(0);
     inventoryTab.depth = Number.MAX_VALUE;
     this.tabs[TabbyState.InventoryOpen] = inventoryTab;
-    
-    let inventoryIcon = this.sceneRef.add.sprite(800-35, 45, 'backpack');
-    inventoryIcon.setInteractive();
-    inventoryIcon.setScrollFactor(0);
-    inventoryIcon.depth = Number.MAX_VALUE;
-    this.icons[TabbyState.InventoryOpen] = inventoryIcon;
-    this.contents[TabbyState.InventoryOpen].push(inventoryIcon);
+    inventoryTab.setInteractive();
+    inventoryTab.on('pointerdown', function(p) {});
+
+    let inventoryPanel = this.sceneRef.add.sprite(800, 0, 'inventoryPanel');
+    inventoryPanel.setOrigin(0,0);
+    inventoryPanel.setScrollFactor(0);
+    inventoryPanel.depth = Number.MAX_VALUE;
+    this.contents[TabbyState.InventoryOpen].push(inventoryPanel);
+    inventoryPanel.setInteractive();
+    inventoryPanel.on('pointerdown', function(p) {});
     
     const resources = ["wood", "stone", "steel", "rope", "cloth", "water", "paper", "gems", "gold", "magic"];
     resources.forEach((type, idx) => {
@@ -54,7 +57,7 @@ export default class Tabby {
     });
 
     let self = this;
-    inventoryIcon.on('pointerup', function (pointer) {
+    inventoryTab.on('pointerup', function (pointer) {
       self.clickTab(TabbyState.InventoryOpen);
     });
   }
@@ -67,38 +70,44 @@ export default class Tabby {
   }
 
   createSkillTab() {
-    let skillTab = this.sceneRef.add.sprite(800-75, 0, 'skillTab');
+    let skillTab = this.sceneRef.add.sprite(800-75, 90, 'skillTab');
     skillTab.setOrigin(0,0);
     skillTab.setScrollFactor(0);
     skillTab.depth = Number.MAX_VALUE;
     this.tabs[TabbyState.SkillOpen] = skillTab;
+    skillTab.setInteractive();
+    skillTab.on('pointerdown', function(p) {});
 
-    let skillIcon = this.sceneRef.add.sprite(800-35, 120, 'axe');
-    skillIcon.setInteractive();
-    skillIcon.setScrollFactor(0);
-    skillIcon.depth = Number.MAX_VALUE;
-    this.icons[TabbyState.SkillOpen] = skillIcon;
-    this.contents[TabbyState.SkillOpen].push(skillIcon);
+    let skillPanel = this.sceneRef.add.sprite(800, 0, 'skillPanel');
+    skillPanel.setOrigin(0,0);
+    skillPanel.setScrollFactor(0);
+    skillPanel.depth = Number.MAX_VALUE;
+    this.contents[TabbyState.SkillOpen].push(skillPanel);
+    skillPanel.setInteractive();
+    skillPanel.on('pointerdown', function(p) {});
 
     let self = this;
-    skillIcon.on('pointerup', function (pointer) {
+    skillTab.on('pointerup', function (pointer) {
       self.clickTab(TabbyState.SkillOpen);
     });
   }
 
   createBuildingTab() {
-    let buildingTab = this.sceneRef.add.sprite(800-75, 0, 'buildingTab');
+    let buildingTab = this.sceneRef.add.sprite(800-75, 165, 'buildingTab');
     buildingTab.setOrigin(0,0);
     buildingTab.setScrollFactor(0);
     buildingTab.depth = Number.MAX_VALUE;
     this.tabs[TabbyState.BuildingOpen] = buildingTab;
+    buildingTab.setInteractive();
+    buildingTab.on('pointerdown', function(p) {});
 
-    let buildingIcon = this.sceneRef.add.sprite(800-35, 195, 'building');
-    buildingIcon.setInteractive();
-    buildingIcon.setScrollFactor(0);
-    buildingIcon.depth = Number.MAX_VALUE;
-    this.icons[TabbyState.BuildingOpen] = buildingIcon;
-    this.contents[TabbyState.BuildingOpen].push(buildingIcon);
+    let buildingPanel = this.sceneRef.add.sprite(800, 0, 'buildingPanel');
+    buildingPanel.setOrigin(0,0);
+    buildingPanel.setScrollFactor(0);
+    buildingPanel.depth = Number.MAX_VALUE;
+    this.contents[TabbyState.BuildingOpen].push(buildingPanel);
+    buildingPanel.setInteractive();
+    buildingPanel.on('pointerdown', function(p) {});
 
     let self = this;
     const buildings = ["tent", "campfire", "well", "mine_stone", "mine_gold", "papermill", "oven", "beacon"];
@@ -115,18 +124,18 @@ export default class Tabby {
       }
       this.contents[TabbyState.BuildingOpen].push(building);
       
-      building.on('pointerup', function (pointer) {
+      let buildFunc = function (pointer) {
         self.sceneRef.buildCallback(type);
         self.clickTab(TabbyState.BuildingOpen);
-      });
+      };
+      this.makeToolTip(building, type, buildFunc);
     });
 
-    buildingIcon.on('pointerup', function (pointer) {
+    buildingTab.on('pointerup', function (pointer) {
       self.clickTab(TabbyState.BuildingOpen);
     });
   }
 
-  // TODO: Block input so that the player isn't walking while looking at their inventory
   clickTab(toState) {
     switch (this.state) {
       case TabbyState.Transitioning:
@@ -148,7 +157,6 @@ export default class Tabby {
 
   openTab(state) {
     let tab = this.tabs[state];
-    let icon = this.icons[state];
     let contents = this.contents[state];
     this.state = TabbyState.Transitioning;
 
@@ -173,7 +181,6 @@ export default class Tabby {
 
   closeTab(state) {
     let tab = this.tabs[state];
-    let icon = this.icons[state];
     let contents = this.contents[state];
     this.state = TabbyState.Transitioning;
 
@@ -208,5 +215,34 @@ export default class Tabby {
     } else {
       image.setScale(1/heightScale, 1/heightScale);
     }
+  }
+
+  makeToolTip(item, tip, onTap) {
+    item.setInteractive();
+    let tout;
+    item.on('pointerdown', function() {
+      if (!item.tipOpen) {
+        clearTimeout(tout);
+        tout = setTimeout(function() { 
+          // SHOW THE TOOLTIP
+          console.log(tip); 
+          item.tipOpen = true; 
+        }, 500);
+      }
+    });
+    let cancel = function() { 
+      if (item.tipOpen) {
+        item.tipOpen = false;
+        // HIDE THE TOOLTIP
+        console.log("Tooltip closed"); 
+      } else {
+        clearTimeout(tout);
+      }
+    };
+    item.on('pointerout', cancel);
+    item.on('pointerup', function() {
+      if (!item.tipOpen) { onTap(); }
+      cancel();
+    });
   }
 }
