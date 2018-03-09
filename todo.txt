@@ -33,15 +33,18 @@
     Beacon
     AoE effects (faster walk, chop, collection amount)
  Tooltips for skills and buildings
+ Update to time based movement speed and such on the server
  Non-permanence?
+ Tint buildings client side based on ability to build
 
- Fonts
+ Maybe move to gigalixir
+ Algo to place players nearby but not too nearby
+ Automatic size to fit device
+ Sound
  Log in/Character creation
   Let people put their names in (and add jack to all of them)
   Let people choose their color
- Automatic size to fit device
- Get this shit working on Heroku or lumoludo.com
- Sound
+ Fonts
 
  Loading screen
  Wake up anim
@@ -54,7 +57,6 @@
  Need to store some of this data on the server "live" instead of hitting the DB constantly.
  Need to find a way to split up regions on the server so that every active building and player isn't getting all info from each other all the time.
  Update origin points for trees and gobbos so that they match their 'feet'.
- Algo to place players nearby but not too nearby
  Only send network traffic to nearby duders
  How to split load across multiple servers?
  Chop anim happens when gobbo is already inside tree most of the time. Need to forward detect against movement. 

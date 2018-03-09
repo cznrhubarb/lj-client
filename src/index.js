@@ -69,7 +69,8 @@ function create () {
   //   this.lastPointer = null;
   // }, this);
 
-  let devSocket = new Socket("ws://lj-sawver.herokuapp.com/socket", {params: {username: clientName}});
+  //let devSocket = new Socket("wss://lj-sawver.herokuapp.com/socket", {params: {username: clientName}});
+  let devSocket = new Socket("ws://localhost:4000/socket", {params: {username: clientName}});
   devSocket.connect();
 
   let world = new World(devSocket, this, connectedJacks);

@@ -4,6 +4,16 @@
 I am making a lumberjack MMO and I have no idea what I am doing. The concept is that players will be people who, every time 
 they fall asleep, wake up in a shared dream with everyone else in the world where they are lumberjacks in an endless forest.
 
+### V3 (3/9/18):
+![V3 Skill Tab Screenshot](https://github.com/cznrhubarb/lj-client/blob/master/ScreenshotFriday_v3_skillScroll.gif?raw=true)
+![V3 Tooltips Screenshot](https://github.com/cznrhubarb/lj-client/blob/master/ScreenshotFriday_v3_tooltips.gif?raw=true)
+* Added the new skill icons to the skill tab. They will branch later, and have lines connecting them, but you can scroll through them for now at least.
+* Added tooltip system to show info for skills, buildings, or whatever. This will be how the player knows the required costs, skills, etc.
+* Fixed a bug that kept the player moving while interacting with the UI.
+* Managed to work on the configuration issues to get this running on my personal site and not just localhost.
+* Did not get as much done this week. :(
+  
+
 ### V2 (3/3/18):
 ![V2 Gathering Screenshot](https://github.com/cznrhubarb/lj-client/blob/master/ScreenshotFriday_v2_gathering.gif?raw=true)
 ![V2 Tab UI and Building Screenshot](https://github.com/cznrhubarb/lj-client/blob/master/ScreenshotFriday_v2_tabsNbuilding.gif?raw=true)
