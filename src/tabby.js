@@ -15,52 +15,55 @@ export default class Tabby {
     this.tabs = {};
     this.contents = { [TabbyState.InventoryOpen]: [], [TabbyState.SkillOpen]: [], [TabbyState.BuildingOpen]: [] };
     this.inventoryCounts = {};
+    this.earnedSkills = [];
 
-    this.createInventoryTab(this.sceneRef);
-    this.createSkillTab(this.sceneRef);
-    this.createBuildingTab(this.sceneRef);
+    this.createInventoryTab();
+    // These get created when we first get the necessary information instead.
+    //this.createSkillTab();
+    //this.createBuildingTab();
 
     this.tooltip = this.sceneRef.add.sprite(2000, 2000, 'tooltip');
     this.tooltip.setOrigin(0.5,1.0);
     this.tooltip.setScrollFactor(0);
-    this.tooltip.depth = Number.MAX_VALUE;
-    this.tooltipText = this.sceneRef.add.text(2000, 2000, '', { fontFamily: 'Lumberjack', fontSize: 16, color: '#242424', align: 'center' });
+    this.tooltip.depth = 20000;
+    this.tooltipText = this.sceneRef.add.text(2000, 2000, '', { fontFamily: 'Lumberjack', fontSize: 16, color: '#242424', align: 'center', wordWrap: { width: this.tooltip.width - 20 } });
     this.tooltipText.setScrollFactor(0);
-    this.tooltipText.depth = Number.MAX_VALUE;
+    this.tooltipText.setOrigin(0.5);
+    this.tooltipText.depth = 20000;
 
     this.state = TabbyState.NoneOpen;
   }
 
   createInventoryTab() {
-    let inventoryTab = this.sceneRef.add.sprite(800-75, 15, 'inventoryTab');
+    let inventoryTab = this.sceneRef.add.sprite(this.sceneRef.cameras.main.width-75, 15, 'inventoryTab');
     inventoryTab.setOrigin(0,0);
     inventoryTab.setScrollFactor(0);
-    inventoryTab.depth = Number.MAX_VALUE;
+    inventoryTab.depth = 20000 - 1000;
     this.tabs[TabbyState.InventoryOpen] = inventoryTab;
     inventoryTab.setInteractive();
     inventoryTab.on('pointerdown', function(p) {});
 
-    let inventoryPanel = this.sceneRef.add.sprite(800, 0, 'inventoryPanel');
+    let inventoryPanel = this.sceneRef.add.sprite(this.sceneRef.cameras.main.width, 0, 'inventoryPanel');
     inventoryPanel.setOrigin(0,0);
     inventoryPanel.setScrollFactor(0);
-    inventoryPanel.depth = Number.MAX_VALUE;
+    inventoryPanel.depth = 20000 - 1000;
     this.contents[TabbyState.InventoryOpen].push(inventoryPanel);
     inventoryPanel.setInteractive();
     inventoryPanel.on('pointerdown', function(p) {});
     
     const resources = ["wood", "stone", "steel", "rope", "cloth", "water", "paper", "gems", "gold", "magic"];
     resources.forEach((type, idx) => {
-      let xOff = (idx % 5) * 70;
+      let xOff = (idx % 5) * 70 + 60;
       let yOff = Math.floor(idx / 5) * 100;
-      let resource = this.sceneRef.add.image(860 + xOff, 60 + yOff, 'resources', resources.indexOf(type));
+      let resource = this.sceneRef.add.image(this.sceneRef.cameras.main.width + xOff, 60 + yOff, 'resources', resources.indexOf(type));
       resource.setScrollFactor(0);
-      resource.depth = Number.MAX_VALUE;
+      resource.depth = 20000 - 1000;
       this.contents[TabbyState.InventoryOpen].push(resource);
 
-      let count = this.sceneRef.add.text(860 + xOff, 80 + yOff, 'x 0', { fontFamily: 'Lumberjack', fontSize: 24, color: '#444444' });
+      let count = this.sceneRef.add.text(this.sceneRef.cameras.main.width + xOff, 80 + yOff, 'x 0', { fontFamily: 'Lumberjack', fontSize: 24, color: '#444444' });
       count.setScrollFactor(0);
       count.x -= count.width/2;
-      count.depth = Number.MAX_VALUE;
+      count.depth = 20000 - 1000;
       this.contents[TabbyState.InventoryOpen].push(count);
       this.inventoryCounts[type] = count;
     });
@@ -78,20 +81,22 @@ export default class Tabby {
     label.x = label.x - label.width/2 + xOff;
   }
 
-  createSkillTab() {
+  createSkillTab(skillList) {
+    if (this.tabs[TabbyState.SkillOpen]) { return; }
+
     let self = this;
-    let skillTab = this.sceneRef.add.sprite(800-75, 90, 'skillTab');
+    let skillTab = this.sceneRef.add.sprite(this.sceneRef.cameras.main.width-75, 90, 'skillTab');
     skillTab.setOrigin(0,0);
     skillTab.setScrollFactor(0);
-    skillTab.depth = Number.MAX_VALUE;
+    skillTab.depth = 20000 - 900;
     this.tabs[TabbyState.SkillOpen] = skillTab;
     skillTab.setInteractive();
     skillTab.on('pointerdown', function(p) {});
 
-    let skillPanel = this.sceneRef.add.sprite(800, 0, 'skillPanel');
+    let skillPanel = this.sceneRef.add.sprite(this.sceneRef.cameras.main.width, 0, 'skillPanel');
     skillPanel.setOrigin(0,0);
     skillPanel.setScrollFactor(0);
-    skillPanel.depth = Number.MAX_VALUE;
+    skillPanel.depth = 20000 - 900;
     this.contents[TabbyState.SkillOpen].push(skillPanel);
     skillPanel.setInteractive();
 
@@ -107,11 +112,11 @@ export default class Tabby {
         let deltaX = p.x - lastPointer.x;
         lastPointer.x = p.x; lastPointer.y = p.y;
         if (lastPointer.y > 50 && lastPointer.y < 200) {
-          updateRow(self.buildSkillIcons, deltaX);
+          updateRow(self.skillIcons["builder"], deltaX);
         } else if (lastPointer.y > 225 && lastPointer.y < 375) {
-          updateRow(self.gatherSkillIcons, deltaX);
+          updateRow(self.skillIcons["gatherer"], deltaX);
         } else if (lastPointer.y > 400 && lastPointer.y < 550) {
-          updateRow(self.leadSkillIcons, deltaX);
+          updateRow(self.skillIcons["leader"], deltaX);
         }
       }
     });
@@ -122,126 +127,139 @@ export default class Tabby {
       dragging = false;
     });
 
-    const buildSkills = ["skill_buildFire", "skill_buildWell", "skill_buildTent", "skill_buildPapermill", "skill_buildStoneMine", "skill_buildOven", "skill_buildBeacon", "skill_buildGoldMine"];
-    this.buildSkillIcons = [];
-    const gatherSkills = ["skill_gatherCloth", "skill_chopFast1", "skill_gatherRope", "skill_chopFast2", "skill_gatherMagic", "skill_chopFast3", "skill_gaterGem", "skill_chopDash1", "skill_chopDash2"];
-    this.gatherSkillIcons = [];
-    const leadSkills = ["skill_emote", "skill_trackBuilding", "skill_trackPlayer", "skill_buffWalk", "skill_buffChop", "skill_buffBuild"];
-    this.leadSkillIcons = [];
-    buildSkills.forEach((skill, idx) => {
-      let xOff = idx * 110;
-      let skillIcon = this.sceneRef.add.image(890 + xOff, 125, skill);
+    this.skillIcons = { "builder": [], "gatherer": [], "leader": [] };
+    this.skillList = skillList;
+    skillList.forEach((skill, idx) => {
+      let xOff = this.skillIcons[skill.tree].length * 110 + 90;
+      let yPos = 125;
+      if (skill.tree == "gatherer") { yPos = 300; }
+      if (skill.tree == "leader") { yPos = 475; }
+      let skillIcon = this.sceneRef.add.image(this.sceneRef.cameras.main.width + xOff, yPos, "skill_" + skill.name);
       skillIcon.setInteractive();
       skillIcon.setScrollFactor(0);
-      skillIcon.depth = Number.MAX_VALUE;
+      skillIcon.depth = 20000 - 900;
       skillIcon.mask = new Phaser.Display.Masks.BitmapMask(this.sceneRef, skillPanel);
       this.contents[TabbyState.SkillOpen].push(skillIcon);
-      this.buildSkillIcons.push(skillIcon);
+      this.skillIcons[skill.tree].push(skillIcon);
+      skill.icon = skillIcon;
 
-      this.makeToolTip(skillIcon, skill, () => {});
+      let tip = skill.display_name + "\n" + skill.description;
+      if (skill.prereqs.length > 0) { tip += "\n" + this.buildPrereqString(skill); }
+      this.makeToolTip(skillIcon, tip, () => {});
     });
-    gatherSkills.forEach((skill, idx) => {
-      let xOff = idx * 110;
-      let skillIcon = this.sceneRef.add.image(890 + xOff, 300, skill);
-      skillIcon.setInteractive();
-      skillIcon.setScrollFactor(0);
-      skillIcon.depth = Number.MAX_VALUE;
-      skillIcon.mask = new Phaser.Display.Masks.BitmapMask(this.sceneRef, skillPanel);
-      this.contents[TabbyState.SkillOpen].push(skillIcon);
-      this.gatherSkillIcons.push(skillIcon);
-
-      this.makeToolTip(skillIcon, skill, () => {});
-    });
-    leadSkills.forEach((skill, idx) => {
-      let xOff = idx * 110;
-      let skillIcon = this.sceneRef.add.image(890 + xOff, 475, skill);
-      skillIcon.setInteractive();
-      skillIcon.setScrollFactor(0);
-      skillIcon.depth = Number.MAX_VALUE;
-      skillIcon.mask = new Phaser.Display.Masks.BitmapMask(this.sceneRef, skillPanel);
-      this.contents[TabbyState.SkillOpen].push(skillIcon);
-      this.leadSkillIcons.push(skillIcon);
-
-      this.makeToolTip(skillIcon, skill, () => {});
-    });
-    /*
-    const buildings = ["tent", "campfire", "well", "mine_stone", "mine_gold", "papermill", "oven", "beacon"];
-    buildings.forEach((type, idx) => {
-      let xOff = (idx % 3) * 110;
-      let yOff = Math.floor(idx / 3) * 120;
-      let building = this.sceneRef.add.image(890 + xOff, 80 + yOff, type);
-      building.setInteractive();
-      this.shrinkToFit(building, 80, 80);
-      building.setScrollFactor(0);
-      building.depth = Number.MAX_VALUE;
-      if (type != "campfire") {
-        building.setTint(0x303030);
-      }
-      this.contents[TabbyState.BuildingOpen].push(building);
-      
-      let buildFunc = function (pointer) {
-        self.sceneRef.buildCallback(type);
-        self.clickTab(TabbyState.BuildingOpen);
-      };
-      this.makeToolTip(building, type, buildFunc);
-    });
-    */
 
     skillTab.on('pointerup', function (pointer) {
       self.clickTab(TabbyState.SkillOpen);
     });
   }
+  
+  updateSkillIcons() {
+    this.skillList.forEach((skill) => {
+      if (this.earnedSkills.includes(skill.name)) {
+        skill.icon.setTint(0xFFFFFF);
+      } else if (this.hasSkillPrereqs(skill)) {
+        skill.icon.setTint(0x505050);
+      } else {
+        skill.icon.setTint(0x000000);
+      }
+    });
+  }
 
-  createBuildingTab() {
-    let buildingTab = this.sceneRef.add.sprite(800-75, 165, 'buildingTab');
+  buildPrereqString(skill) {
+    let prereqString = "Requires: ";
+    // Could be a reduce instead of a foreach if I wanted to be fancy.
+    skill.prereqs.forEach((pre, idx) => {
+      prereqString += this.skillList.find(s => s.name == pre).display_name;
+      if (idx < skill.prereqs.length -1 ) {
+        prereqString += " / ";
+      }
+    });
+    return prereqString;
+  }
+
+  hasSkillPrereqs(skill) {
+    return skill.prereqs.every(pre => this.earnedSkills.includes(pre));
+  }
+
+  createBuildingTab(buildingList) {
+    if (this.tabs[TabbyState.BuildingOpen]) { return; }
+
+    let buildingTab = this.sceneRef.add.sprite(this.sceneRef.cameras.main.width-75, 165, 'buildingTab');
     buildingTab.setOrigin(0,0);
     buildingTab.setScrollFactor(0);
-    buildingTab.depth = Number.MAX_VALUE;
+    buildingTab.depth = 20000 - 800;
     this.tabs[TabbyState.BuildingOpen] = buildingTab;
     buildingTab.setInteractive();
     buildingTab.on('pointerdown', function(p) {});
 
-    let buildingPanel = this.sceneRef.add.sprite(800, 0, 'buildingPanel');
+    let buildingPanel = this.sceneRef.add.sprite(this.sceneRef.cameras.main.width, 0, 'buildingPanel');
     buildingPanel.setOrigin(0,0);
     buildingPanel.setScrollFactor(0);
-    buildingPanel.depth = Number.MAX_VALUE;
+    buildingPanel.depth = 20000 - 800;
     this.contents[TabbyState.BuildingOpen].push(buildingPanel);
     buildingPanel.setInteractive();
     buildingPanel.on('pointerdown', function(p) {});
 
+    this.buildingIcons = {};
+    this.buildingList = buildingList;
+
     let self = this;
-    const buildings = ["tent", "campfire", "well", "mine_stone", "mine_gold", "papermill", "oven", "beacon"];
-    const tips = ["Tent\nWell rested lumberjacks walk faster when nearby.\n50 cloth / 25 rope",
-                  "Camp Fire\nExtra light helps lumberjacks find better materials.\n50 wood",
-                  "Well\nProduces water once in a while.\n50 wood",
-                  "Stone Mine\nProduces stone once in a while.\n50 wood / 50 water",
-                  "Gold Mine\nProduces gold once in a while.\n50 wood / 50 stone / 20 gems / 50 water",
-                  "Paper Mill\nProduces paper once in a while.\n50 wood / 50 water",
-                  "Oven\nWell fed lumberjacks chop wood faster.\n50 wood / 25 paper",
-                  "Beacon\nThis will help other lumberjacks find you.\n50 wood / 50 magic / 50 gold"];
-    buildings.forEach((type, idx) => {
-      let xOff = (idx % 3) * 110;
+    buildingList.forEach((building, idx) => {
+      let xOff = (idx % 3) * 110 + 90;
       let yOff = Math.floor(idx / 3) * 120;
-      let building = this.sceneRef.add.image(890 + xOff, 80 + yOff, type);
-      building.setInteractive();
-      this.shrinkToFit(building, 80, 80);
-      building.setScrollFactor(0);
-      building.depth = Number.MAX_VALUE;
-      if (type != "campfire" && type != "well") {
-        building.setTint(0x303030);
-      }
-      this.contents[TabbyState.BuildingOpen].push(building);
+      let buildingIcon = this.sceneRef.add.image(this.sceneRef.cameras.main.width + xOff, 80 + yOff, building.gfx_name);
+      buildingIcon.setInteractive();
+      this.shrinkToFit(buildingIcon, 80, 80);
+      buildingIcon.setScrollFactor(0);
+      buildingIcon.depth = 20000 - 800;
+      this.contents[TabbyState.BuildingOpen].push(buildingIcon);
+      this.buildingIcons[building.gfx_name] = buildingIcon;
       
       let buildFunc = function (pointer) {
-        self.sceneRef.buildCallback(type);
+        self.sceneRef.buildCallback(building.gfx_name);
         self.clickTab(TabbyState.BuildingOpen);
       };
-      this.makeToolTip(building, tips[idx], buildFunc);
+      let tip = building.display_name + "\n" + building.description + "\n" + this.getBuildingCostString(building);
+      this.makeToolTip(buildingIcon, tip, buildFunc);
     });
+
+    this.updateBuildingIcons();
 
     buildingTab.on('pointerup', function (pointer) {
       self.clickTab(TabbyState.BuildingOpen);
     });
+  }
+
+  updateBuildingIcons() {
+    this.buildingList.forEach((building) => {
+      if (!this.hasRequiredSkill(building)) {
+        this.buildingIcons[building.gfx_name].setTint(0x000000);
+      } else if (!this.canAffordCost(building)) {
+        this.buildingIcons[building.gfx_name].setTint(0x505050);
+      } else {
+        this.buildingIcons[building.gfx_name].setTint(0xFFFFFF);
+      }
+    });
+  }
+
+  getBuildingCostString(building) {
+    let costString = "";
+    let keys = Object.keys(building.mat_cost);
+    keys.forEach(function(type, idx) {
+      costString += building.mat_cost[type] + " " + type;
+      if (idx < keys.length - 1) {
+        costString += " / ";
+      }
+    });
+    return costString;
+  }
+
+  canAffordCost(building) {
+    return Object.keys(building.mat_cost).every((type) => Number(this.inventoryCounts[type].text.slice(2)) >= building.mat_cost[type]);
+  }
+
+  hasRequiredSkill(building) {
+    return building.req_skills.every(buildSkill => this.earnedSkills.find(earnedSkill => earnedSkill.name == buildSkill));
   }
 
   clickTab(toState) {
@@ -366,10 +384,10 @@ export default class Tabby {
     this.tooltip.x = pointer.x;
     this.tooltip.y = pointer.y;
 
+    let heightMult = 0.65;
     if (this.tooltip.y < this.tooltip.height) {
       this.tooltip.y += this.tooltip.height;
-      // Update pointer y, only so the text also lines up
-      pointer.y += this.tooltip.height + 40;
+      heightMult = 0.35;
       if (!this.tooltip.flipY) {
         this.tooltip.toggleFlipY();
       }
@@ -377,7 +395,7 @@ export default class Tabby {
       this.tooltip.toggleFlipY();
     }
     
-    this.tooltipText.x = pointer.x - this.tooltipText.width/2;
-    this.tooltipText.y = pointer.y - this.tooltip.height + this.tooltipText.height * 0.25;
+    this.tooltipText.x = this.tooltip.x;
+    this.tooltipText.y = this.tooltip.y - (this.tooltip.height * heightMult);
   }
 }

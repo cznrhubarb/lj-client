@@ -20,16 +20,15 @@ export default class Lumberjack {
       spr.anims.play('down_die_' + this.color, 5);
       spr.anims.forward = false;
     } else if (spr.x == newPos.x) {
-      if ((spr.anims.currentAnim.key != 'down_die_' + this.color || spr.anims.currentAnim.key.endsWith('swing_' + this.color))
-            || !spr.anims.isPlaying) {
-              spr.anims.play(this.lastDirection + '_idle_' + this.color, true);
+      if (!this.animIsPlaying('swing') && !this.animIsPlaying('die')) {
+        spr.anims.play(this.lastDirection + '_idle_' + this.color, true);
       }
-    } else {
+    } else if (!this.animIsPlaying('swing')) {
       let dir = this.determineDirection(spr, newPos);
       spr.anims.play(dir + '_walk_' + this.color, true);
       this.lastDirection = dir;
     }
-    
+
     spr.x = newPos.x;
     spr.y = newPos.y;
     spr.depth = spr.y;
@@ -38,16 +37,19 @@ export default class Lumberjack {
   updateInput(pointer) {
     if (!this.isWaitingForServer) {
       let spr = this.sprite;
-      if (!spr.anims.currentAnim.key.endsWith('swing_' + this.color) || !spr.anims.isPlaying) {
-        if (pointer) {
-          this.isWaitingForServer = true;
-          return { current: {x: spr.x, y: spr.y}, desired: pointer };
-        } else {
-          this.isWaitingForServer = true;
-          return { current: {x: spr.x, y: spr.y} };
-        }
+      if (pointer && !this.animIsPlaying('swing')) {
+        this.isWaitingForServer = true;
+        return { current: { x: spr.x, y: spr.y }, desired: pointer };
+      } else {
+        this.isWaitingForServer = true;
+        return { current: { x: spr.x, y: spr.y } };
       }
     }
+  }
+
+  animIsPlaying(animName) {
+    let spr = this.sprite;
+    return spr.anims.currentAnim.key.indexOf(animName) != -1 && spr.anims.isPlaying;
   }
 
   chop() {

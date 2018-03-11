@@ -1,3 +1,22 @@
+THE GAME JAM TODO LIST:
+
+Add skill prereqs to tooltips (for now. eventually want a visual tree)
+Implement passive skill effects
+Implement passive aura skill effects
+Implement active skill effects
+Implement production building effects
+Implement aura building effects
+Some way to earn skills
+Move to gigalixir
+Sounds
+Test performance
+Look into limiting DB hits from server
+Look into limiting server hits from client
+Share inventory
+Place people algorithmically
+Constrain skill dragging / maybe fix drag over icon stopping the row drag bug / maybe adjust mask to look not bad
+
+
  THE BIG LIST OF TODO:
 
  Skill tree
@@ -15,27 +34,13 @@
     Other nearby players gain benefits (chop, buildspd, buildcost, etc)
   Design idea: Spreading into other archetypes trees costs MORE points, instead of all early branches being cheap.
     More like D&D multiclassing than UO 30%-in-a-ton-of-skills style
-  Find/create some assets
-  Input method to open skill tree, choose new skills
-  Server -> Store skills -> Return to player on next log in
+  Input method to choose new skills
  Buildings
-    Send list of buildings in DB to player on load?? Use this to populate building window??
-  Server -> 
-    [X]Check materials, 
-    [ ]Check build skill unlocked
-    [X]Check physical space for viability
-    [X]Reduce materials
-    [X]Clear forest
-    [X]place building
-        -> [X]All players
   Propagate/manage effects (probably server side handling. Imagine buildings go in a list of 'active' things that send out heartbeat effects to nearby players. Will need to add an update loop to the server though.)
     Generate non-wood resources
     Beacon
     AoE effects (faster walk, chop, collection amount)
- Tooltips for skills and buildings
- Update to time based movement speed and such on the server
  Non-permanence?
- Tint buildings client side based on ability to build
 
  Maybe move to gigalixir
  Algo to place players nearby but not too nearby
@@ -54,6 +59,7 @@
  Log on blurbs
 
  Real Low Priority:
+ BUG?? If the player moves too fast the server can't respond with trees? No idea. Seems real fast movement cause the missing tree line bug.
  Need to store some of this data on the server "live" instead of hitting the DB constantly.
  Need to find a way to split up regions on the server so that every active building and player isn't getting all info from each other all the time.
  Update origin points for trees and gobbos so that they match their 'feet'.

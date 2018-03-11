@@ -7,8 +7,8 @@ import {LoadGraphics} from './gfxLoader';
 
 let game = new Phaser.Game({
   type: Phaser.AUTO,
-    width: 800,
-    height: 600,
+    width: window.innerWidth,
+    height: window.innerHeight,
     scene: {
         preload: preload,
         create: create,
@@ -30,8 +30,8 @@ function create () {
   });
 
   // HACK
-  let clientName = "red";
-  let connectedJacks = {};
+  this.clientName = "red";
+  this.connectedJacks = {};
   
   this.cameras.main.setBackgroundColor('#190D07');
   
@@ -53,81 +53,27 @@ function create () {
     this.lastPointer = null;
   };
 
-  // this.input.on('pointerdown', function(pointer) {
-  //   this.lastPointer = {
-  //     x: pointer.x - this.cameras.main.width/2,
-  //     y: pointer.y - this.cameras.main.height/2
-  //   };
-  // }, this);
-  // this.input.on('pointermove', function(pointer) {
-  //   if (this.lastPointer) {
-  //     this.lastPointer.x = pointer.x - this.cameras.main.width/2;
-  //     this.lastPointer.y = pointer.y - this.cameras.main.height/2;
-  //   }
-  // }, this);
-  // this.input.on('pointerup', function(pointer) {
-  //   this.lastPointer = null;
-  // }, this);
-
-  //let devSocket = new Socket("wss://lj-sawver.herokuapp.com/socket", {params: {username: clientName}});
-  let devSocket = new Socket("ws://localhost:4000/socket", {params: {username: clientName}});
+  let serverLocation = "wss://lj-sawver.herokuapp.com/socket";
+  if (window.location.href.indexOf("localhost") != -1) {
+    serverLocation = "ws://localhost:4000/socket";
+  }
+  let devSocket = new Socket(serverLocation, {params: {username: this.clientName}});
   devSocket.connect();
 
-  let world = new World(devSocket, this, connectedJacks);
-  this.world = world;
+  this.world = new World(devSocket, this, this.connectedJacks);
   this.world.setInputFuncs(onDown.bind(this), onMove.bind(this), onUp.bind(this));
   this.buildCallback = buildCallback.bind(this);
 
-  channels.position = devSocket.channel("player:position", {});
-  channels.position.on("presence_diff", diff => {
-    Object.keys(diff.leaves).forEach(function(dcName) {
-      // TODO: Play the dead animation, with a callback on complete to remove this lumberjack.
-      //  Unfortunately callbacks are linked to animations, not instances of animations...
-      connectedJacks[dcName].sprite.destroy();
-      connectedJacks[dcName] = null;
-    });
-  });
-  channels.position.on("new_position", msg => {
-    let lumberingjack = connectedJacks[msg.username];
-    if (!lumberingjack) {
-      // Must create the new lumberjack
-      // Color shouldn't be randomly decided. Needs to be sent over with initial position maybe?
-      //  Maybe put into state?
-      lumberingjack = new Lumberjack(msg.username, msg.color, this);
-      if (msg.username == clientName) {
-        lumberingjack.isClient = true;
-        this.localjack = lumberingjack;
-        this.cameras.main.startFollow(lumberingjack.sprite);
-      }
-      connectedJacks[msg.username] = lumberingjack;
-    }
-
-    lumberingjack.updatePos(msg);
-    if (lumberingjack.isClient) {
-      lumberingjack.isWaitingForServer = false;
-      let shouldChop = world.updateCameraView(lumberingjack.sprite);
-      
-      if (shouldChop) {
-        // Attempt to chop down a tree
-        let chopped = world.chop({x: lumberingjack.sprite.x + lumberingjack.sprite.width/4, y: lumberingjack.sprite.y + lumberingjack.sprite.height/2});
-        if (chopped) {
-          lumberingjack.chop();
-        }
-      }
-    }
-  });
   // I feel like I should make other channels or something, but I don't know what I'm doing and I can't slow down to find out at this point...
-  channels.position.on("inventory_update", msg => {
-    let holdingjack = connectedJacks[msg.username];
-    if (holdingjack) {
-      Object.assign(holdingjack.inventory, msg.inventory);
-      for (var type in msg.inventory) {
-        if (msg.inventory.hasOwnProperty(type)) {
-          this.tabby.setInventoryCount(type, msg.inventory[type]);
-        }
-      }
-    }
-  });
+  channels.position = devSocket.channel("player:position", {});
+
+  channels.position.on("presence_diff", onPresenceDiff.bind(this));
+  channels.position.on("new_position", onNewPosition.bind(this));
+  channels.position.on("inventory_update", onInventoryUpdate.bind(this));
+  channels.position.on("skill_update", onSkillUpdate.bind(this));
+  channels.position.on("skill_info", onSkillInfo.bind(this));
+  channels.position.on("building_info", onBuildingInfo.bind(this));
+
   channels.position.join()
     .receive("ok", res => { console.log("Joined pos channel successfully", res); })
     .receive("error", res => { console.log("Unable to join pos channel", res); });
@@ -171,4 +117,74 @@ function update() {
   }
 
   this.world.updateResources();
+}
+
+function onPresenceDiff(diff) {
+  Object.keys(diff.leaves).forEach(function(dcName) {
+    // TODO: Play the dead animation, with a callback on complete to remove this lumberjack.
+    //  Unfortunately callbacks are linked to animations, not instances of animations...
+    this.connectedJacks[dcName].sprite.destroy();
+    this.connectedJacks[dcName] = null;
+  });
+}
+
+function onNewPosition(msg) {
+  let lumberingjack = this.connectedJacks[msg.username];
+  if (!lumberingjack) {
+    // Must create the new lumberjack
+    // Color shouldn't be randomly decided. Needs to be sent over with initial position maybe?
+    //  Maybe put into state?
+    lumberingjack = new Lumberjack(msg.username, msg.color, this);
+    if (msg.username == this.clientName) {
+      lumberingjack.isClient = true;
+      this.localjack = lumberingjack;
+      this.cameras.main.startFollow(lumberingjack.sprite);
+    }
+    this.connectedJacks[msg.username] = lumberingjack;
+  }
+
+  lumberingjack.updatePos(msg);
+  if (lumberingjack.isClient) {
+    lumberingjack.isWaitingForServer = false;
+    let shouldChop = this.world.updateCameraView(lumberingjack.sprite);
+    
+    if (shouldChop) {
+      // Attempt to chop down a tree
+      let chopped = this.world.chop({x: lumberingjack.sprite.x + lumberingjack.sprite.width/4, y: lumberingjack.sprite.y + lumberingjack.sprite.height/2});
+      if (chopped) {
+        lumberingjack.chop();
+      }
+    }
+  }
+}
+
+function onInventoryUpdate(msg) {
+  let holdingjack = this.connectedJacks[msg.username];
+  if (holdingjack) {
+    Object.assign(holdingjack.inventory, msg.inventory);
+
+    if (holdingjack.isClient) {
+      for (var type in msg.inventory) {
+        if (msg.inventory.hasOwnProperty(type)) {
+          this.tabby.setInventoryCount(type, msg.inventory[type]);
+        }
+      }
+
+      this.tabby.updateBuildingIcons();
+    }
+  }
+}
+
+function onSkillUpdate(msg) {
+  this.tabby.earnedSkills = msg.skills;
+  this.tabby.updateBuildingIcons();
+  this.tabby.updateSkillIcons();
+}
+
+function onSkillInfo(msg) {
+  this.tabby.createSkillTab(msg.skills);
+}
+
+function onBuildingInfo(msg) {
+  this.tabby.createBuildingTab(msg.buildings);
 }
