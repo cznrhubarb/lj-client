@@ -51,7 +51,7 @@ export default class Tabby {
     inventoryPanel.setInteractive();
     inventoryPanel.on('pointerdown', function(p) {});
     
-    const resources = ["wood", "stone", "steel", "rope", "cloth", "water", "paper", "gems", "gold", "magic"];
+    const resources = ["wood", "stone", "steel", "rope", "cloth", "water", "gold", "paper", "gems", "magic"];
     resources.forEach((type, idx) => {
       let xOff = (idx % 5) * 70 + 60;
       let yOff = Math.floor(idx / 5) * 100;
@@ -145,8 +145,30 @@ export default class Tabby {
 
       let tip = skill.display_name + "\n" + skill.description;
       if (skill.prereqs.length > 0) { tip += "\n" + this.buildPrereqString(skill); }
-      this.makeToolTip(skillIcon, tip, () => {});
+      this.makeToolTip(skillIcon, tip, () => {
+        // Purchase skill
+        this.sceneRef.buySkillCallback(skill.name);
+      });
     });
+
+    let classText = this.sceneRef.add.text(this.sceneRef.cameras.main.width + 50, 45, 'Builder', { fontFamily: 'Lumberjack', fontSize: 32, color: '#444444' });
+    classText.setScrollFactor(0);
+    classText.depth = 20000 - 890;
+    this.contents[TabbyState.SkillOpen].push(classText);
+    classText = this.sceneRef.add.text(this.sceneRef.cameras.main.width + 50, 220, 'Gatherer', { fontFamily: 'Lumberjack', fontSize: 32, color: '#444444' });
+    classText.setScrollFactor(0);
+    classText.depth = 20000 - 890;
+    this.contents[TabbyState.SkillOpen].push(classText);
+    classText = this.sceneRef.add.text(this.sceneRef.cameras.main.width + 50, 395, 'Leader', { fontFamily: 'Lumberjack', fontSize: 32, color: '#444444' });
+    classText.setScrollFactor(0);
+    classText.depth = 20000 - 890;
+    this.contents[TabbyState.SkillOpen].push(classText);
+
+    this.skillPointsLabel = this.sceneRef.add.text(this.sceneRef.cameras.main.width + skillPanel.width/2, 550, 'Available Skill Points: ', { fontFamily: 'Lumberjack', fontSize: 22, color: '#444444' });
+    this.skillPointsLabel.setScrollFactor(0);
+    this.skillPointsLabel.depth = 20000 - 890;
+    this.skillPointsLabel.setOrigin(0.5);
+    this.contents[TabbyState.SkillOpen].push(this.skillPointsLabel);
 
     skillTab.on('pointerup', function (pointer) {
       self.clickTab(TabbyState.SkillOpen);
@@ -163,6 +185,10 @@ export default class Tabby {
         skill.icon.setTint(0x000000);
       }
     });
+  }
+  
+  updateSkillPoints(points) {
+    this.skillPointsLabel.setText('Available Skill Points: ' + points);
   }
 
   buildPrereqString(skill) {
@@ -259,7 +285,7 @@ export default class Tabby {
   }
 
   hasRequiredSkill(building) {
-    return building.req_skills.every(buildSkill => this.earnedSkills.find(earnedSkill => earnedSkill.name == buildSkill));
+    return building.req_skills.every(buildSkill => this.earnedSkills.find(earnedSkill => earnedSkill == buildSkill));
   }
 
   clickTab(toState) {

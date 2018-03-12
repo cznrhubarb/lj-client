@@ -4,6 +4,7 @@ import World from './world';
 import Lumberjack from './lumberjack';
 import Tabby from './tabby';
 import {LoadGraphics} from './gfxLoader';
+import {generateUuid, lineAabbIntersection, generateAabb} from './miscutils';
 
 let game = new Phaser.Game({
   type: Phaser.AUTO,
@@ -29,8 +30,12 @@ function create () {
     loadAnims.call(this, color);
   });
 
-  // HACK
-  this.clientName = "red";
+  this.clientName = localStorage.getItem('lumberjackName');
+  if (!this.clientName) {
+    this.clientName = generateUuid();
+    console.log("Generating a new client name: " + this.clientName);
+    localStorage.setItem('lumberjackName', this.clientName);
+  }
   this.connectedJacks = {};
   
   this.cameras.main.setBackgroundColor('#190D07');
@@ -63,6 +68,7 @@ function create () {
   this.world = new World(devSocket, this, this.connectedJacks);
   this.world.setInputFuncs(onDown.bind(this), onMove.bind(this), onUp.bind(this));
   this.buildCallback = buildCallback.bind(this);
+  this.buySkillCallback = buySkillCallback.bind(this);
 
   // I feel like I should make other channels or something, but I don't know what I'm doing and I can't slow down to find out at this point...
   channels.position = devSocket.channel("player:position", {});
@@ -84,6 +90,11 @@ function create () {
 // Gonna regret not just setting up an event system later probably...
 function buildCallback(type) {
   this.world.build(type, {x: this.localjack.sprite.x + this.localjack.sprite.width/4, y: this.localjack.sprite.y + this.localjack.sprite.height/2});
+}
+
+// Getting closer to that regret mentioned above
+function buySkillCallback(skillName) {
+  channels.position.push("buy_skill", {skill: skillName});
 }
 
 function loadAnims(color) {
@@ -155,6 +166,35 @@ function onNewPosition(msg) {
         lumberingjack.chop();
       }
     }
+  } else if (this.connectedJacks[this.clientName].skills.includes('trackPlayer')) {
+    if (true/* other player is off screen*/) {
+      if (!lumberingjack.trackBubble) {
+        lumberingjack.trackBubble = this.sprite.add(0, 0, 'trackPlayerBubble');
+        lumberingjack.trackBubble.setScrollFactor(0);
+        lumberingjack.trackBubble.depth = 10000;
+        lumberingjack.trackArrow = this.sprite.add(0, 0, 'trackArrow');
+        lumberingjack.trackArrow.setScrollFactor(0);
+        lumberingjack.trackArrow.depth = 10001;
+      }
+  
+      let tracker = this.connectedJacks[this.clientName];
+      let bubble = lumberingjack.trackBubble;
+      let arrow = lumberingjack.trackArrow;
+      bubble.alpha = 1;
+      arrow.alpha = 0;
+
+      let intersect = lineAabbIntersection(tracker.sprite, lumberingjack.sprite, 
+        generateAabb(tracker, this.sceneRef.cameras.main.width - 150, this.sceneRef.cameras.main.height - 150));
+      bubble.x = intersect.x - tracker.x;
+      bubble.y = intersect.y - tracker.y;
+
+      
+    } else {
+      if (lumberingjack.trackBubble) {
+        lumberingjack.trackBubble.alpha = 0;
+        lumberingjack.trackArrow.alpha = 0;
+      }
+    }
   }
 }
 
@@ -176,9 +216,15 @@ function onInventoryUpdate(msg) {
 }
 
 function onSkillUpdate(msg) {
-  this.tabby.earnedSkills = msg.skills;
-  this.tabby.updateBuildingIcons();
-  this.tabby.updateSkillIcons();
+  let holdingjack = this.connectedJacks[msg.username];
+  if (holdingjack) {
+    holdingjack.skills = msg.skills;
+
+    this.tabby.earnedSkills = msg.skills;
+    this.tabby.updateBuildingIcons();
+    this.tabby.updateSkillIcons();
+    this.tabby.updateSkillPoints(msg.skill_points);
+  }
 }
 
 function onSkillInfo(msg) {

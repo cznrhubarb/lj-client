@@ -45,9 +45,10 @@ export default class World {
   }
 
   spawnResources(msg) {
-    const resourceFrames = ["wood", "stone", "steel", "rope", "cloth", "water", "paper", "gems", "gold", "magic"];
+    const resourceFrames = ["wood", "stone", "steel", "rope", "cloth", "water", "gold", "paper", "gems", "magic"];
 
     let lumberjack = this.lumberjacksRef[msg.user_to_pickup];
+    if (!lumberjack) { return; }
     let position = msg.spawn_pos;
     msg.resources.forEach(resPair => {
       let type = resPair.type;
@@ -93,6 +94,7 @@ export default class World {
 
   fillTileAtCoords(xCoord, yCoord, type) {
     let tile = this.getTileForCoords(xCoord, yCoord);
+    if (!tile) { return; }
     let worldPos = this.getWorldPosForTileCoords(xCoord, yCoord);
 
     if (tile.contents) {

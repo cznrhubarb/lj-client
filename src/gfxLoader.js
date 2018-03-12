@@ -57,6 +57,10 @@ import gatherRopeGfx from './img/skills/gather_rope.png';
 import trackBuildingGfx from './img/skills/track_building.png';
 import trackPlayerGfx from './img/skills/track_player.png';
 
+import trackPlayerBubbleGfx from './img/skills/track_player_bubble.png';
+import trackBuildingBubbleGfx from './img/skills/track_building_bubble.png';
+import trackArrowGfx from './img/skills/track_arrow.png';
+
 // Moved this out to its own file so that it doesn't clog up index.js
 //  Later on, maybe this could be a class that only loads what is necessary instead of everything ever.
 //  Also, maybe a lot of these graphics should be in a sprite sheet. But later.
@@ -108,9 +112,13 @@ export function LoadGraphics(sceneRef) {
   sceneRef.load.image('skill_emote', emoteGfx);
   sceneRef.load.image('skill_emoteMore', emoteMoreGfx);
   sceneRef.load.image('skill_gatherCloth', gatherClothGfx);
-  sceneRef.load.image('skill_gatherGem', gatherGemGfx);
+  sceneRef.load.image('skill_gatherGems', gatherGemGfx);
   sceneRef.load.image('skill_gatherMagic', gatherMagicGfx);
   sceneRef.load.image('skill_gatherRope', gatherRopeGfx);
   sceneRef.load.image('skill_trackBuilding', trackBuildingGfx);
   sceneRef.load.image('skill_trackPlayer', trackPlayerGfx);
+
+  sceneRef.load.image('trackPlayerBubble', trackPlayerBubbleGfx);
+  sceneRef.load.image('trackBuildingBubble', trackBuildingBubbleGfx);
+  sceneRef.load.image('trackArrow', trackArrowGfx);
 }

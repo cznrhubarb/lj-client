@@ -1,20 +1,38 @@
 THE GAME JAM TODO LIST:
 
-Add skill prereqs to tooltips (for now. eventually want a visual tree)
-Implement passive skill effects
-Implement passive aura skill effects
-Implement active skill effects
-Implement production building effects
-Implement aura building effects
-Some way to earn skills
-Move to gigalixir
+Click skills to earn them
+Fonts
 Sounds
+
+Fix bugs
+Test on phone/website
+Move to gigalixir
+Pack some spritesheets
 Test performance
 Look into limiting DB hits from server
 Look into limiting server hits from client
-Share inventory
+Constrain skill dragging / maybe adjust mask to look not bad / just add a grab handle below icons maybe
+Implement chop speed passive skill effects
+Tighten start bounds
+Clear DB
+Turn off cheats
+
+
+-- Cutting for demo ? -- 
+Skill trees
+Stroke/glow for when a skill is purchasable
+Implement Beacon & Oven (chop speed building)
+
 Place people algorithmically
-Constrain skill dragging / maybe fix drag over icon stopping the row drag bug / maybe adjust mask to look not bad
+Implement passive tracking skill effects
+Implement passive aura skill effects
+Implement emote skill effects
+Change wood resource graphic
+Implement chopdash skill effects
+Popups (for tutorials and such)
+Visual clues for effects
+Implement skill replacement??
+
 
 
  THE BIG LIST OF TODO:
@@ -50,6 +68,7 @@ Constrain skill dragging / maybe fix drag over icon stopping the row drag bug / 
   Let people put their names in (and add jack to all of them)
   Let people choose their color
  Fonts
+Share inventory
 
  Loading screen
  Wake up anim
@@ -59,6 +78,7 @@ Constrain skill dragging / maybe fix drag over icon stopping the row drag bug / 
  Log on blurbs
 
  Real Low Priority:
+ Version numbers to ensure client and server are on the same page.
  BUG?? If the player moves too fast the server can't respond with trees? No idea. Seems real fast movement cause the missing tree line bug.
  Need to store some of this data on the server "live" instead of hitting the DB constantly.
  Need to find a way to split up regions on the server so that every active building and player isn't getting all info from each other all the time.
