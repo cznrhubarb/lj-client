@@ -8,6 +8,9 @@ export default class World {
     this.grasses = [];
     this.resources = [];
 
+    this.chopsSfx = [scene.sound.add('chop1'), scene.sound.add('chop2'), scene.sound.add('chop3')];
+    this.skillupSfx = scene.sound.add('skillup');
+
     this.lastCamCenter = null;
 
     this.objectChannel = devSocket.channel("object:all", {});
@@ -111,7 +114,8 @@ export default class World {
         obj.y = worldPos.y;
         obj.depth = obj.y;
       } else {
-        obj = this.sceneRef.add.sprite(worldPos.x, worldPos.y, type);
+        obj = this.sceneRef.add.image(worldPos.x, worldPos.y, 'terrainAtlas', type + '.png');
+        obj.setOrigin(0.5, 0.76);
         obj.depth = obj.y;
         obj.type = type;
       }
@@ -182,7 +186,7 @@ export default class World {
   }
 
   isStaggeredRow(pos) {
-    return this.getTileYCoordForWorldPos(pos) % 2 == 0;
+    return this.getTileYCoordForWorldPos(pos) & 1 == 0;
   }
 
   updateCameraView(newCenterWorldPos) {
@@ -226,16 +230,16 @@ export default class World {
       shouldChop = true;
     }
 
-    if (newCenterWorldPos.y > this.lastCamCenter.y + 32) {
+    if (newCenterWorldPos.y > this.lastCamCenter.y + 16) {
       let topLeft = {x: newCenterWorldPos.x - halfWidth, y: this.lastCamCenter.y + halfHeight};
       let bottomRight = {x: newCenterWorldPos.x + halfWidth, y: newCenterWorldPos.y + halfHeight};
       this.forceWorldUpdateInCameraRect(topLeft, bottomRight);
 
       this.lastCamCenter.y = newCenterWorldPos.y;
       shouldChop = true;
-    } else if (newCenterWorldPos.y < this.lastCamCenter.y - 32) {
+    } else if (newCenterWorldPos.y < this.lastCamCenter.y - 16) {
       let topLeft = {x: newCenterWorldPos.x - halfWidth, y: newCenterWorldPos.y - halfHeight};
-      let bottomRight = {x: newCenterWorldPos.x + halfWidth, y: newCenterWorldPos.y - halfHeight};
+      let bottomRight = {x: newCenterWorldPos.x + halfWidth, y: this.lastCamCenter.y - halfHeight};
       this.forceWorldUpdateInCameraRect(topLeft, bottomRight);
 
       this.lastCamCenter.y = newCenterWorldPos.y;
@@ -331,7 +335,8 @@ export default class World {
   chop(worldPos) {
     let coords = this.getTileCoordsForWorldPos(worldPos);
     let tile = this.getTileForCoords(coords.x, coords.y);
-    if (tile.contents && tile.contents.type == 'tree') {
+    if (tile.contents && tile.contents.type.endsWith('tree')) {
+      const wasSkillup = tile.contents.type == 'skilltree';
       // Pre-set the type to stump so that we don't accidentally chop down the same tree twice.
       tile.contents.type = 'stump';
       // The timeout below is synced to the player chop animation
@@ -339,6 +344,11 @@ export default class World {
       window.setTimeout(() => {
         //this.objectChannel.push("set_obj_at", { objects: [{x: coords.x, y: coords.y, object: 'stump'}] });
         this.objectChannel.push("chop", { x: coords.x, y: coords.y });
+        if (wasSkillup) {
+          this.skillupSfx.play();
+        } else {
+          this.chopsSfx[Math.floor(Math.random() * 3)].play();
+        }
       }, 300);
       return true;
     }

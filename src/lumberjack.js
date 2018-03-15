@@ -8,12 +8,13 @@ export default class Lumberjack {
     this.isWaitingForServer = true;
     this.inventory = {};
     this.sprite = this.sceneRef.add.sprite(Number.MAX_VALUE, Number.MAX_VALUE, color + 'Gob');
+    this.sprite.setOrigin(0.5, 0.81);
 
     this.sprite.anims.play('down_idle_' + color);
     this.sprite.depth = this.sprite.y;
   }
 
-  updatePos(newPos) {
+  updatePos(newPos, isDeadReckoning) {
     let spr = this.sprite;
     if (spr.x == Number.MAX_VALUE) {
       // TODO: Play this animation in reverse. Not supported yet?
@@ -32,6 +33,10 @@ export default class Lumberjack {
     spr.x = newPos.x;
     spr.y = newPos.y;
     spr.depth = spr.y;
+
+    if (this.isClient && !isDeadReckoning) {
+      this.isWaitingForServer = false;
+    }
   }
 
   updateInput(pointer) {
@@ -42,7 +47,7 @@ export default class Lumberjack {
         return { current: { x: spr.x, y: spr.y }, desired: pointer };
       } else {
         this.isWaitingForServer = true;
-        return { current: { x: spr.x, y: spr.y } };
+        return { };
       }
     }
   }

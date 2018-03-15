@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'Lumberjack';
-  src: url('fnt/Lumberjack.woff2') format('woff2'),
-       url('fnt/Lumberjack.woff') format('woff'),
-       url('myffnt/Lumberjackont.ttf') format('truetype');
+  src: url('./fnt/Lumberjack.woff2') format('woff2'),
+       url('./fnt/Lumberjack.woff') format('woff'),
+       url('./fnt/Lumberjack.ttf') format('truetype');
 }

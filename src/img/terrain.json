@@ -1,0 +1,140 @@
+{"frames": [
+
+{
+	"filename": "beacon.png",
+	"frame": {"x":1,"y":384,"w":30,"h":56},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":30,"h":56},
+	"sourceSize": {"w":30,"h":56}
+},
+{
+	"filename": "cactus1.png",
+	"frame": {"x":105,"y":368,"w":22,"h":34},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":22,"h":34},
+	"sourceSize": {"w":22,"h":34}
+},
+{
+	"filename": "campfire.png",
+	"frame": {"x":75,"y":368,"w":28,"h":37},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":28,"h":37},
+	"sourceSize": {"w":28,"h":37}
+},
+{
+	"filename": "mine_gold.png",
+	"frame": {"x":1,"y":279,"w":59,"h":59},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":59,"h":59},
+	"sourceSize": {"w":59,"h":59}
+},
+{
+	"filename": "mine_stone.png",
+	"frame": {"x":66,"y":220,"w":59,"h":66},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":0,"w":59,"h":66},
+	"sourceSize": {"w":60,"h":67}
+},
+{
+	"filename": "oven.png",
+	"frame": {"x":84,"y":57,"w":42,"h":53},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":42,"h":53},
+	"sourceSize": {"w":42,"h":53}
+},
+{
+	"filename": "papermill.png",
+	"frame": {"x":1,"y":1,"w":81,"h":90},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":81,"h":90},
+	"sourceSize": {"w":81,"h":90}
+},
+{
+	"filename": "rockGrey_large.png",
+	"frame": {"x":1,"y":93,"w":74,"h":92},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":74,"h":92},
+	"sourceSize": {"w":74,"h":92}
+},
+{
+	"filename": "ruinsCorner.png",
+	"frame": {"x":77,"y":112,"w":50,"h":54},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":50,"h":54},
+	"sourceSize": {"w":50,"h":54}
+},
+{
+	"filename": "skilltree.png",
+	"frame": {"x":1,"y":187,"w":63,"h":90},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":4,"y":1,"w":63,"h":90},
+	"sourceSize": {"w":67,"h":98}
+},
+{
+	"filename": "spaceship.png",
+	"frame": {"x":77,"y":168,"w":50,"h":50},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":50,"h":50},
+	"sourceSize": {"w":50,"h":50}
+},
+{
+	"filename": "stump.png",
+	"frame": {"x":41,"y":340,"w":13,"h":15},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":10,"y":31,"w":13,"h":15},
+	"sourceSize": {"w":32,"h":46}
+},
+{
+	"filename": "tent.png",
+	"frame": {"x":1,"y":340,"w":38,"h":42},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":38,"h":42},
+	"sourceSize": {"w":38,"h":42}
+},
+{
+	"filename": "towerRuin.png",
+	"frame": {"x":84,"y":1,"w":42,"h":54},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":42,"h":54},
+	"sourceSize": {"w":42,"h":54}
+},
+{
+	"filename": "tree.png",
+	"frame": {"x":41,"y":368,"w":32,"h":46},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":46},
+	"sourceSize": {"w":32,"h":46}
+},
+{
+	"filename": "well.png",
+	"frame": {"x":62,"y":288,"w":56,"h":78},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":56,"h":78},
+	"sourceSize": {"w":56,"h":78}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "terrain.png",
+	"format": "RGBA8888",
+	"size": {"w":128,"h":441},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:82ca0e3ddba3f5541ccad3c2c7583cc9:f06d3f4f8809fd2461d4f9bc547a5ecd:a52c91d73586a2a634ceb55ad22f4949$"
+}
+}

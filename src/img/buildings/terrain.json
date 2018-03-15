@@ -1,0 +1,100 @@
+{"frames": [
+
+{
+	"filename": "beacon.png",
+	"frame": {"x":84,"y":56,"w":30,"h":56},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":30,"h":56},
+	"sourceSize": {"w":30,"h":56}
+},
+{
+	"filename": "campfire.png",
+	"frame": {"x":75,"y":255,"w":28,"h":37},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":28,"h":37},
+	"sourceSize": {"w":28,"h":37}
+},
+{
+	"filename": "mine_gold.png",
+	"frame": {"x":62,"y":194,"w":59,"h":59},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":59,"h":59},
+	"sourceSize": {"w":59,"h":59}
+},
+{
+	"filename": "mine_stone.png",
+	"frame": {"x":1,"y":185,"w":59,"h":66},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":0,"w":59,"h":66},
+	"sourceSize": {"w":60,"h":67}
+},
+{
+	"filename": "oven.png",
+	"frame": {"x":84,"y":1,"w":42,"h":53},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":42,"h":53},
+	"sourceSize": {"w":42,"h":53}
+},
+{
+	"filename": "papermill.png",
+	"frame": {"x":1,"y":1,"w":81,"h":90},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":81,"h":90},
+	"sourceSize": {"w":81,"h":90}
+},
+{
+	"filename": "skilltree.png",
+	"frame": {"x":1,"y":93,"w":63,"h":90},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":4,"y":1,"w":63,"h":90},
+	"sourceSize": {"w":67,"h":98}
+},
+{
+	"filename": "stump.png",
+	"frame": {"x":66,"y":93,"w":13,"h":15},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":10,"y":31,"w":13,"h":15},
+	"sourceSize": {"w":32,"h":46}
+},
+{
+	"filename": "tent.png",
+	"frame": {"x":1,"y":253,"w":38,"h":42},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":38,"h":42},
+	"sourceSize": {"w":38,"h":42}
+},
+{
+	"filename": "tree.png",
+	"frame": {"x":41,"y":255,"w":32,"h":46},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":46},
+	"sourceSize": {"w":32,"h":46}
+},
+{
+	"filename": "well.png",
+	"frame": {"x":66,"y":114,"w":56,"h":78},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":56,"h":78},
+	"sourceSize": {"w":56,"h":78}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "terrain.png",
+	"format": "RGBA8888",
+	"size": {"w":127,"h":302},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:e882ce57579cd84f2b993536b1acb633:58da4a081d513060b26ccf1969e369a3:a52c91d73586a2a634ceb55ad22f4949$"
+}
+}

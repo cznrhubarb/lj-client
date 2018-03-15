@@ -1,0 +1,68 @@
+{"frames": [
+
+{
+	"filename": "building_panel.png",
+	"frame": {"x":1,"y":1,"w":400,"h":600},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":400,"h":600},
+	"sourceSize": {"w":400,"h":600}
+},
+{
+	"filename": "building_tab.png",
+	"frame": {"x":1,"y":1583,"w":75,"h":69},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":75,"h":69},
+	"sourceSize": {"w":75,"h":69}
+},
+{
+	"filename": "inventory_panel.png",
+	"frame": {"x":1,"y":1205,"w":400,"h":250},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":400,"h":250},
+	"sourceSize": {"w":400,"h":250}
+},
+{
+	"filename": "inventory_tab.png",
+	"frame": {"x":78,"y":1583,"w":75,"h":69},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":75,"h":69},
+	"sourceSize": {"w":75,"h":69}
+},
+{
+	"filename": "skill_panel.png",
+	"frame": {"x":1,"y":603,"w":400,"h":600},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":400,"h":600},
+	"sourceSize": {"w":400,"h":600}
+},
+{
+	"filename": "skill_tab.png",
+	"frame": {"x":155,"y":1583,"w":75,"h":69},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":75,"h":69},
+	"sourceSize": {"w":75,"h":69}
+},
+{
+	"filename": "tooltip.png",
+	"frame": {"x":1,"y":1457,"w":380,"h":124},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":0,"w":380,"h":124},
+	"sourceSize": {"w":380,"h":127}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "misc.png",
+	"format": "RGBA8888",
+	"size": {"w":402,"h":1653},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:16000dc7d3ef647f01fc9e43a9c75452:c3ba29c2ce630bd70b5091c0267c08f9:8940225683741d51cffc2e8ee1e8f353$"
+}
+}

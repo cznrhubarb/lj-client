@@ -5,6 +5,9 @@ import Lumberjack from './lumberjack';
 import Tabby from './tabby';
 import {LoadGraphics} from './gfxLoader';
 import {generateUuid, lineAabbIntersection, generateAabb} from './miscutils';
+import style from './style.css';
+
+console.log(style);
 
 let game = new Phaser.Game({
   type: Phaser.AUTO,
@@ -24,6 +27,19 @@ function preload() {
 let channels = {};
 
 function create () {
+  // We want to make it the smallest we can while still hitting these minimum values (for fitting all the UI on there)
+  // const minWidth = 500;
+  // const minHeight = 600;
+  // let widthRatio = this.cameras.main.width / minWidth;
+  // let heightRatio = this.cameras.main.height / minHeight;
+  // if (widthRatio > 1 && heightRatio > 1) {
+  //   if (widthRatio > heightRatio) {
+  //     this.cameras.main.setZoom(heightRatio);
+  //   } else {
+  //     this.cameras.main.setZoom(widthRatio);
+  //   }
+  // }
+
   const colors = ['blue', 'green', 'red', 'yellow'];
 
   colors.forEach((color) => {
@@ -74,8 +90,8 @@ function create () {
   channels.position = devSocket.channel("player:position", {});
 
   channels.position.on("presence_diff", onPresenceDiff.bind(this));
-  channels.position.on("new_position", onNewPosition.bind(this));
-  channels.position.on("inventory_update", onInventoryUpdate.bind(this));
+  channels.position.on("np", onNewPosition.bind(this));         //new_position
+  channels.position.on("invup", onInventoryUpdate.bind(this));  //inventory_update
   channels.position.on("skill_update", onSkillUpdate.bind(this));
   channels.position.on("skill_info", onSkillInfo.bind(this));
   channels.position.on("building_info", onBuildingInfo.bind(this));
@@ -123,7 +139,7 @@ function update() {
   if (this.localjack) {
     let requestPayload = this.localjack.updateInput(this.lastPointer);
     if (requestPayload) {
-      channels.position.push("req_position", requestPayload);
+      channels.position.push("rp", requestPayload);
     }
   }
 
@@ -156,7 +172,6 @@ function onNewPosition(msg) {
 
   lumberingjack.updatePos(msg);
   if (lumberingjack.isClient) {
-    lumberingjack.isWaitingForServer = false;
     let shouldChop = this.world.updateCameraView(lumberingjack.sprite);
     
     if (shouldChop) {
@@ -169,10 +184,10 @@ function onNewPosition(msg) {
   } else if (this.connectedJacks[this.clientName].skills.includes('trackPlayer')) {
     if (true/* other player is off screen*/) {
       if (!lumberingjack.trackBubble) {
-        lumberingjack.trackBubble = this.sprite.add(0, 0, 'trackPlayerBubble');
+        lumberingjack.trackBubble = this.image.add(0, 0, 'skillsAtlas', 'track_player_bubble.png');
         lumberingjack.trackBubble.setScrollFactor(0);
         lumberingjack.trackBubble.depth = 10000;
-        lumberingjack.trackArrow = this.sprite.add(0, 0, 'trackArrow');
+        lumberingjack.trackArrow = this.image.add(0, 0, 'skillsAtlas', 'track_arrow.png');
         lumberingjack.trackArrow.setScrollFactor(0);
         lumberingjack.trackArrow.depth = 10001;
       }

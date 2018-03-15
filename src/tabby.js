@@ -8,6 +8,8 @@ export default class Tabby {
   constructor(sceneRef) {
     this.sceneRef = sceneRef;
     this.create();
+    this.tapSfx = sceneRef.sound.add('tap');
+    this.buyskillSfx = sceneRef.sound.add('buyskill');
   }
 
   create() {
@@ -22,7 +24,7 @@ export default class Tabby {
     //this.createSkillTab();
     //this.createBuildingTab();
 
-    this.tooltip = this.sceneRef.add.sprite(2000, 2000, 'tooltip');
+    this.tooltip = this.sceneRef.add.image(2000, 2000, 'uiAtlas', 'tooltip.png');
     this.tooltip.setOrigin(0.5,1.0);
     this.tooltip.setScrollFactor(0);
     this.tooltip.depth = 20000;
@@ -35,7 +37,7 @@ export default class Tabby {
   }
 
   createInventoryTab() {
-    let inventoryTab = this.sceneRef.add.sprite(this.sceneRef.cameras.main.width-75, 15, 'inventoryTab');
+    let inventoryTab = this.sceneRef.add.image(this.sceneRef.cameras.main.width-75, 15, 'uiAtlas', 'inventory_tab.png');
     inventoryTab.setOrigin(0,0);
     inventoryTab.setScrollFactor(0);
     inventoryTab.depth = 20000 - 1000;
@@ -43,7 +45,7 @@ export default class Tabby {
     inventoryTab.setInteractive();
     inventoryTab.on('pointerdown', function(p) {});
 
-    let inventoryPanel = this.sceneRef.add.sprite(this.sceneRef.cameras.main.width, 0, 'inventoryPanel');
+    let inventoryPanel = this.sceneRef.add.image(this.sceneRef.cameras.main.width, 0, 'uiAtlas', 'inventory_panel.png');
     inventoryPanel.setOrigin(0,0);
     inventoryPanel.setScrollFactor(0);
     inventoryPanel.depth = 20000 - 1000;
@@ -85,7 +87,7 @@ export default class Tabby {
     if (this.tabs[TabbyState.SkillOpen]) { return; }
 
     let self = this;
-    let skillTab = this.sceneRef.add.sprite(this.sceneRef.cameras.main.width-75, 90, 'skillTab');
+    let skillTab = this.sceneRef.add.image(this.sceneRef.cameras.main.width-75, 90, 'uiAtlas', 'skill_tab.png');
     skillTab.setOrigin(0,0);
     skillTab.setScrollFactor(0);
     skillTab.depth = 20000 - 900;
@@ -93,7 +95,7 @@ export default class Tabby {
     skillTab.setInteractive();
     skillTab.on('pointerdown', function(p) {});
 
-    let skillPanel = this.sceneRef.add.sprite(this.sceneRef.cameras.main.width, 0, 'skillPanel');
+    let skillPanel = this.sceneRef.add.image(this.sceneRef.cameras.main.width, 0, 'uiAtlas', 'skill_panel.png');
     skillPanel.setOrigin(0,0);
     skillPanel.setScrollFactor(0);
     skillPanel.depth = 20000 - 900;
@@ -134,7 +136,7 @@ export default class Tabby {
       let yPos = 125;
       if (skill.tree == "gatherer") { yPos = 300; }
       if (skill.tree == "leader") { yPos = 475; }
-      let skillIcon = this.sceneRef.add.image(this.sceneRef.cameras.main.width + xOff, yPos, "skill_" + skill.name);
+      let skillIcon = this.sceneRef.add.image(this.sceneRef.cameras.main.width + xOff, yPos, "skillsAtlas", skill.name + ".png");
       skillIcon.setInteractive();
       skillIcon.setScrollFactor(0);
       skillIcon.depth = 20000 - 900;
@@ -147,7 +149,10 @@ export default class Tabby {
       if (skill.prereqs.length > 0) { tip += "\n" + this.buildPrereqString(skill); }
       this.makeToolTip(skillIcon, tip, () => {
         // Purchase skill
-        this.sceneRef.buySkillCallback(skill.name);
+        if (!this.earnedSkills.includes(skill.name) && this.hasSkillPrereqs(skill)) {
+          this.buyskillSfx.play();
+          this.sceneRef.buySkillCallback(skill.name);
+        }
       });
     });
 
@@ -210,7 +215,7 @@ export default class Tabby {
   createBuildingTab(buildingList) {
     if (this.tabs[TabbyState.BuildingOpen]) { return; }
 
-    let buildingTab = this.sceneRef.add.sprite(this.sceneRef.cameras.main.width-75, 165, 'buildingTab');
+    let buildingTab = this.sceneRef.add.image(this.sceneRef.cameras.main.width-75, 165, 'uiAtlas', 'building_tab.png');
     buildingTab.setOrigin(0,0);
     buildingTab.setScrollFactor(0);
     buildingTab.depth = 20000 - 800;
@@ -218,7 +223,7 @@ export default class Tabby {
     buildingTab.setInteractive();
     buildingTab.on('pointerdown', function(p) {});
 
-    let buildingPanel = this.sceneRef.add.sprite(this.sceneRef.cameras.main.width, 0, 'buildingPanel');
+    let buildingPanel = this.sceneRef.add.image(this.sceneRef.cameras.main.width, 0, 'uiAtlas', 'building_panel.png');
     buildingPanel.setOrigin(0,0);
     buildingPanel.setScrollFactor(0);
     buildingPanel.depth = 20000 - 800;
@@ -233,7 +238,7 @@ export default class Tabby {
     buildingList.forEach((building, idx) => {
       let xOff = (idx % 3) * 110 + 90;
       let yOff = Math.floor(idx / 3) * 120;
-      let buildingIcon = this.sceneRef.add.image(this.sceneRef.cameras.main.width + xOff, 80 + yOff, building.gfx_name);
+      let buildingIcon = this.sceneRef.add.image(this.sceneRef.cameras.main.width + xOff, 80 + yOff, 'terrainAtlas', building.gfx_name + '.png');
       buildingIcon.setInteractive();
       this.shrinkToFit(buildingIcon, 80, 80);
       buildingIcon.setScrollFactor(0);
@@ -294,13 +299,16 @@ export default class Tabby {
         return;
       case TabbyState.NoneOpen:
         this.openTab(toState);
+        this.tapSfx.play();
         break;
       case toState:
         this.closeTab(toState);
+        this.tapSfx.play();
         break;
       default:
         this.closeTab(this.state);
         this.openTab(toState);
+        this.tapSfx.play();
         break;
     }
 

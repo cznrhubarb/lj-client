@@ -1,25 +1,35 @@
-THE GAME JAM TODO LIST:
+THE LAST MINUTE LIST:
 
-Click skills to earn them
-Fonts
-Sounds
+Performance
+- Move terrain to an agent. 
+-   Fill out with local stuff near player as they load. Agent will need to hold actual trees as well
+-   Attempt to pull from agent first, then pull from DB
+-   Instead of hitting DB on set, keep a changelist in the agent and save that periodically
+-   Not sure about agent storing too much info locally, but probably OK for jam??
+- Shorten channel message string lengths (new_position -> np, req_position -> rp, etc.)
+- Look at any other areas of excessive DB hits
+Walking away from building and coming back bug (Maybe the agent fixes this?)
+Add other non-functioning misc scenery (rocket launcher?)
+Skill point pickup particle effect
+Clear area around player on load
+Dead reckoning?
+-   Would require client to know about walk speed buffs. :(
+
+
+THE GAME JAM TODO LIST:
 
 Fix bugs
 Test on phone/website
-Move to gigalixir
-Pack some spritesheets
+Increase scale on large resolution devices instead of showing a million fuckin trees
+Shared inventory
 Test performance
 Look into limiting DB hits from server
 Look into limiting server hits from client
 Constrain skill dragging / maybe adjust mask to look not bad / just add a grab handle below icons maybe
 Implement chop speed passive skill effects
-Tighten start bounds
-Clear DB
-Turn off cheats
 
 
 -- Cutting for demo ? -- 
-Skill trees
 Stroke/glow for when a skill is purchasable
 Implement Beacon & Oven (chop speed building)
 
@@ -145,3 +155,11 @@ Share inventory
     Able to send a push notification to another nearby player immediately after the log off (so they could log back on and meet up)
     |-> And able to pull player back to the place they logged out
     Able to see a brief beacon when another player logs off within a certain distance
+
+
+
+
+CURRENT CHEAT OF THE DAY
+    
+Clear Terrain DB every time the server restarts?!
+(It all would have decayed anyway?)

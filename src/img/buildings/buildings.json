@@ -1,0 +1,92 @@
+{"frames": [
+
+{
+	"filename": "beacon.png",
+	"frame": {"x":93,"y":161,"w":30,"h":56},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":30,"h":56},
+	"sourceSize": {"w":30,"h":56}
+},
+{
+	"filename": "campfire.png",
+	"frame": {"x":59,"y":209,"w":28,"h":37},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":28,"h":37},
+	"sourceSize": {"w":28,"h":37}
+},
+{
+	"filename": "mine_gold.png",
+	"frame": {"x":62,"y":100,"w":59,"h":59},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":59,"h":59},
+	"sourceSize": {"w":59,"h":59}
+},
+{
+	"filename": "mine_stone.png",
+	"frame": {"x":1,"y":93,"w":59,"h":66},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":0,"w":59,"h":66},
+	"sourceSize": {"w":60,"h":67}
+},
+{
+	"filename": "oven.png",
+	"frame": {"x":84,"y":1,"w":42,"h":53},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":42,"h":53},
+	"sourceSize": {"w":42,"h":53}
+},
+{
+	"filename": "papermill.png",
+	"frame": {"x":1,"y":1,"w":81,"h":90},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":81,"h":90},
+	"sourceSize": {"w":81,"h":90}
+},
+{
+	"filename": "stump.png",
+	"frame": {"x":89,"y":219,"w":13,"h":15},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":10,"y":31,"w":13,"h":15},
+	"sourceSize": {"w":32,"h":46}
+},
+{
+	"filename": "tent.png",
+	"frame": {"x":84,"y":56,"w":38,"h":42},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":38,"h":42},
+	"sourceSize": {"w":38,"h":42}
+},
+{
+	"filename": "tree.png",
+	"frame": {"x":59,"y":161,"w":32,"h":46},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":46},
+	"sourceSize": {"w":32,"h":46}
+},
+{
+	"filename": "well.png",
+	"frame": {"x":1,"y":161,"w":56,"h":78},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":56,"h":78},
+	"sourceSize": {"w":56,"h":78}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "buildings.png",
+	"format": "RGBA8888",
+	"size": {"w":127,"h":247},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:bc7438e90a8514990dfe40d8fb3ecb4c:7d15c054b23346f9662c56b5c44ae8c8:8f670863a0ac9ac15291caba2801fd50$"
+}
+}
